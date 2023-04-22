@@ -1,0 +1,38 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceRoot}",
+                "${workspaceRoot}/../far2l/WinPort",
+                "${workspaceRoot}/../far2l/utils/include",
+                "${workspaceRoot}/../far2l/far2l/far2sdk",
+                "/usr/include/python3.8",
+                "/usr/include"
+            ],
+            "defines": [
+                "VIRTUAL_PYTHON_PATH=L\"/devel/bin/python3/bin/python\"",
+                "PYTHON_LIBRARY=\"/usr/lib/python3.8/config-3.8-x86_64-linux-gnu/libpython3.8.so\"",
+                "FAR_DONT_USE_INTERNALS",
+                "UNICODE",
+                "WINPORT_DIRECT",
+                "WINPORT_REGISTRY",
+                "WXUSINGDLL",
+                "_FILE_OFFSET_BITS=64",
+                "__WXGTK__"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "/usr/include"
+                ]
+            },
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

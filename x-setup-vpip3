@@ -1,0 +1,2 @@
+#!/bin/bash
+vpip3 install -r x-setup-vpip3-data

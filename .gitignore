@@ -1,0 +1,8 @@
+__pycache__/
+
+far2lcffi.py.cpp
+python.far-plug-wide
+python.o
+
+far2l-docker
+farsizer.py
