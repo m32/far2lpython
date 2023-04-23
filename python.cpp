@@ -378,6 +378,8 @@ XPORT(int, MakeDirectory)(HANDLE hPlugin,const wchar_t **Name,int OpMode) {
     PYTHON_INT(0)
     return result;
 }
+#if 0
+// in far2l only one plugin is allowed at time
 XPORT(HANDLE, OpenFilePlugin)(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode) {
     PYTHON_LOG("OpMode=%d Name='%ls'\n", OpMode, Name);
     HANDLE result = INVALID_HANDLE_VALUE;
@@ -385,6 +387,7 @@ XPORT(HANDLE, OpenFilePlugin)(const wchar_t *Name,const unsigned char *Data,int 
     PYTHON_HANDLE(INVALID_HANDLE_VALUE)
     return result;
 }
+#endif
 XPORT(int, ProcessDialogEvent)(int Event,void *Param) {
     PYTHON_LOG("Event=%d\n", Event);
     int result = 0;
