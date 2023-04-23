@@ -4,7 +4,7 @@ from far2l.plugin import PluginVFS
 
 import stat
 import datetime
-from adbutils import AdbClient
+from adbutils import AdbClient, AdbError
 
 log = logging.getLogger(__name__)
 
@@ -176,6 +176,10 @@ class Plugin(PluginVFS):
                 lines.insert(0, 'RuntimeError:')
                 self.Message(lines)
                 return False
+            except AdbError as ex:
+                log.exception('AdbError')
+                self.Message(str(ex).split('\n'))
+                return False
             except:
                 log.exception('unknown exception:')
                 self.Message(['Unknown exception.'])
@@ -184,6 +188,10 @@ class Plugin(PluginVFS):
             try:
                 result = self.device.sync.list(self.devicepath)
                 self.addResult(result)
+            except AdbError as ex:
+                log.exception('AdbError')
+                self.Message(str(ex).split('\n'))
+                return False
             except:
                 log.exception('unknown exception:')
                 self.Message(['Unknown exception.'])
@@ -230,6 +238,10 @@ class Plugin(PluginVFS):
                 except:
                     #log.debug('goto.3: not rooted')
                     pass
+            except AdbError as ex:
+                self.device = None
+                log.exception('AdbError')
+                self.Message(str(ex).split('\n'))
             except:
                 self.device = None
                 log.exception('unknown exception:')
@@ -280,6 +292,10 @@ class Plugin(PluginVFS):
             #log.debug('pull: {} -> {} OpMode={}'.format(sqname, dqname, OpMode))
             try:
                 self.device.sync.pull(sqname, dqname)
+            except AdbError as ex:
+                log.exception('AdbError')
+                self.Message(str(ex).split('\n'))
+                return False
             except:
                 log.exception('unknown exception:')
                 self.Message(['Unknown exception.'])
@@ -298,6 +314,10 @@ class Plugin(PluginVFS):
             #log.debug('push: {} -> {} OpMode={}'.format(sqname, dqname, OpMode))
             try:
                 self.device.sync.push(sqname, dqname)
+            except AdbError as ex:
+                log.exception('AdbError')
+                self.Message(str(ex).split('\n'))
+                return False
             except:
                 log.exception('unknown exception:')
                 self.Message(['Unknown exception.'])
@@ -318,6 +338,9 @@ class Plugin(PluginVFS):
             log.debug('remove: {}, OpMode={}'.format(dqname, OpMode))
             try:
                 pass
+            except AdbError as ex:
+                log.exception('AdbError')
+                self.Message(str(ex).split('\n'))
             except:
                 log.exception('unknown exception:')
                 self.Message(['Unknown exception.'])

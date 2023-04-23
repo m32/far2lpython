@@ -4,7 +4,7 @@
 #include <string>
 #include <dlfcn.h>
 
-#if !defined(__APPLE__) && !defined(__FreeBSD__)
+#if !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__DragonFly__)
 # include <alloca.h>
 #endif
 
@@ -26,9 +26,9 @@ static FARSTANDARDFUNCTIONS FSF;
 // #define PYPLUGIN_THREADED
 // #define PYPLUGIN_MEASURE_STARTUP
 
+#ifdef PYPLUGIN_DEBUGLOG
 static void python_log(const char *function, unsigned int line, const char *format, ...)
 {
-#ifdef PYPLUGIN_DEBUGLOG
     va_list args;
     char *xformat = (char *)alloca(strlen(format) + strlen(function) + 64);
     sprintf(xformat, "[PYTHON %lu]: %s@%u%s%s",
@@ -49,10 +49,12 @@ static void python_log(const char *function, unsigned int line, const char *form
     if (stream != stderr) {
         fclose(stream);
     }
-#endif
 }
 
 #define PYTHON_LOG(args...)  python_log(__FUNCTION__, __LINE__, args)
+#else
+#define PYTHON_LOG(args...)
+#endif
 
 #define PYTHON_VOID() \
     if (pyresult != NULL) { \
@@ -103,7 +105,6 @@ protected:
         std::string syspath = "import sys";
         syspath += "\nsys.path.insert(1, '" + pluginPath + "')";
         syspath += "\nsys.path.insert(1, '" + pluginPath + "/plugins')";
-        PYTHON_LOG("syspath=%s\n", syspath.c_str());
 
         PyRun_SimpleString(syspath.c_str());
 
@@ -149,7 +150,9 @@ public:
         Py_SetProgramName((wchar_t *)progname.c_str());
         Py_Initialize();
         PyEval_InitThreads();
-//        TranslateInstallPath_Lib2Share(pluginPath);
+
+        //TranslateInstallPath_Lib2Share(pluginPath);
+
 #ifdef PYPLUGIN_THREADED
         if (!StartThread()) {
             PYTHON_LOG("StartThread failed, fallback to synchronous initialization\n");

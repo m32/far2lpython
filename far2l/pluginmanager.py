@@ -6,7 +6,7 @@ import configparser
 import logging
 import logging.config
 
-USERHOME = os.getcwd()
+USERHOME = os.path.expanduser('~/.config/far2l/plugins/python')
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,7 +23,7 @@ setup()
 log = logging.getLogger(__name__)
 log.debug('%s start' % ('*'*20))
 log.debug('sys.path={0}'.format(sys.path))
-log.debug('cwd={0}'.format(USERHOME))
+log.debug('userhome={0}'.format(USERHOME))
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
