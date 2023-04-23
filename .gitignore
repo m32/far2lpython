@@ -1,6 +1,8 @@
 __pycache__/
 
 far2lcffi.py.cpp
+consts.h
+
 python.far-plug-wide
 python.o
 
