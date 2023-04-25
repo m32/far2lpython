@@ -1,6 +1,16 @@
 import os
+import stat
 import logging
 from far2l.plugin import PluginVFS
+from far2l.fardialogbuilder import (
+    Spacer,
+    TEXT, EDIT, PASSWORD, MASKED, MEMOEDIT,
+    BUTTON, CHECKBOX, RADIOBUTTON, COMBOBOX,
+    LISTBOX, USERCONTROL,
+    HLine,
+    HSizer, VSizer,
+    DialogBuilder
+)
 
 import stat
 import datetime
@@ -136,14 +146,43 @@ class Plugin(PluginVFS):
             1                                                   # ButtonsNumber
         )
 
+    def ConfirmDialog(self, title, lines):
+        _MsgItems = [
+            self.s2f(title),
+            self.s2f(''),
+        ]
+        for line in lines:
+            _MsgItems.append(
+                self.s2f(line)
+            )
+        _MsgItems.extend([
+            self.s2f(""),
+            self.s2f("\x01"),
+            self.s2f("&Cancel"),
+            self.s2f("&Ok"),
+        ])
+        #log.debug('_msgItems: %s', _MsgItems)
+        MsgItems = self.ffi.new("wchar_t *[]", _MsgItems)
+        rc = self.info.Message(
+            self.info.ModuleNumber,                             # GUID
+            self.ffic.FMSG_WARNING|self.ffic.FMSG_LEFTALIGN,    # Flags
+            self.s2f("Contents"),                               # HelpTopic
+            MsgItems,                                           # Items
+            len(MsgItems),                                      # ItemsNumber
+            2                                                   # ButtonsNumber
+        )
+        # 0 = Cancel, 1 = OK
+        #log.debug('confirm={}'.format(rc))
+        return rc
+
     def GetOpenPluginInfo(self, OpenInfo):
         Info = self.ffi.cast("struct OpenPluginInfo *", OpenInfo)
         Info.Flags = (
-            self.ffic.OPIF_USEFILTER|
-            self.ffic.OPIF_USESORTGROUPS|
-            self.ffic.OPIF_USEHIGHLIGHTING|
-            self.ffic.OPIF_ADDDOTS|
-            self.ffic.OPIF_SHOWNAMESONLY
+            self.ffic.OPIF_USEFILTER
+            |self.ffic.OPIF_USESORTGROUPS
+            |self.ffic.OPIF_USEHIGHLIGHTING
+            |self.ffic.OPIF_ADDDOTS
+            |self.ffic.OPIF_SHOWNAMESONLY
         )
         Info.HostFile = self.ffi.NULL
         Info.CurDir = self.s2f(self.devicepath)
@@ -160,13 +199,13 @@ class Plugin(PluginVFS):
         #const struct PanelMode *PanelModesArray;
         Info.PanelModesNumber = 0
         Info.StartPanelMode = 0
-        Info.StartSortMode = self.ffic.SM_NAME
-        Info.StartSortOrder = 0
+        #Info.StartSortMode = self.ffic.SM_NAME
+        #Info.StartSortOrder = 0
         #const struct KeyBarTitles *KeyBar;
-        #const wchar_t           *ShortcutData;
+        Info.ShortcutData = self.s2f('py:adb cd '+title)
 
     def GetFindData(self, PanelItem, ItemsNumber, OpMode):
-        #log.debug("ADB.GetFindData({0}, {1}, {2})".format(PanelItem, ItemsNumber, OpMode))
+        #super().GetFindData(PanelItem, ItemsNumber, OpMode)
         if self.device is None:
             try:
                 self.loadDevices()
@@ -180,9 +219,11 @@ class Plugin(PluginVFS):
                 log.exception('AdbError')
                 self.Message(str(ex).split('\n'))
                 return False
-            except:
+            except Exception as ex:
                 log.exception('unknown exception:')
-                self.Message(['Unknown exception.'])
+                msg = str(ex).split('\n')
+                msg.insert(0, 'Unknown exception.')
+                self.Message(msg)
                 return False
         else:
             try:
@@ -192,9 +233,11 @@ class Plugin(PluginVFS):
                 log.exception('AdbError')
                 self.Message(str(ex).split('\n'))
                 return False
-            except:
+            except Exception as ex:
                 log.exception('unknown exception:')
-                self.Message(['Unknown exception.'])
+                msg = str(ex).split('\n')
+                msg.insert(0, 'Unknown exception.')
+                self.Message(msg)
                 return False
         PanelItem = self.ffi.cast('struct PluginPanelItem **', PanelItem)
         ItemsNumber = self.ffi.cast('int *', ItemsNumber)
@@ -211,10 +254,11 @@ class Plugin(PluginVFS):
         self.Items = []
 
     def SetDirectory(self, Dir, OpMode):
-        if OpMode & self.ffic.OPM_FIND:
-            return False
+        #super().SetDirectory(Dir, OpMode)
+        #if OpMode & self.ffic.OPM_FIND:
+        #    return False
         name = self.f2s(Dir)
-        #log.debug('goto.0: devicepath={} name={}'.format(self.devicepath, name))
+        log.debug('goto.0: devicepath={} name={}'.format(self.devicepath, name))
         if name == "":
             self.info.Control(self.hplugin, self.ffic.FCTL_CLOSEPLUGIN, 0, 0)
             return True
@@ -242,11 +286,13 @@ class Plugin(PluginVFS):
                 self.device = None
                 log.exception('AdbError')
                 self.Message(str(ex).split('\n'))
-            except:
+                return False
+            except Exception as ex:
                 self.device = None
                 log.exception('unknown exception:')
-                self.Message(['Unknown exception.'])
-            if self.device is None:
+                msg = str(ex).split('\n')
+                msg.insert(0, 'Unknown exception.')
+                self.Message(msg)
                 return False
         else:
             self.devicepath = os.path.join(self.devicepath, name)
@@ -255,14 +301,14 @@ class Plugin(PluginVFS):
     def Compare(self, PanelItem1, PanelItem2, Mode):
         def cmp(a, b):
             if a < b:
-                return 1
+                return -1
             elif a == b:
                 return 0
-            return -1
+            return 1
         p1 = self.ffi.cast('struct PluginPanelItem *', PanelItem1)
-        p2 = self.ffi.cast('struct PluginPanelItem *', PanelItem1)
+        p2 = self.ffi.cast('struct PluginPanelItem *', PanelItem2)
         n1 = self.f2s(p1.FindData.lpwszFileName)
-        n2 = self.f2s(p1.FindData.lpwszFileName)
+        n2 = self.f2s(p2.FindData.lpwszFileName)
         rc = cmp(n1, n2)
         #log.debug('Compare: cmp({}, {})={}, mode={}'.format(n1, n2, rc, Mode))
         return rc
@@ -278,37 +324,52 @@ class Plugin(PluginVFS):
         pass
 
     def GetFiles(self, PanelItem, ItemsNumber, Move, DestPath, OpMode):
+        #super().GetFiles(PanelItem, ItemsNumber, Move, DestPath, OpMode)
         if ItemsNumber == 0 or Move:
             return False
+        if self.device is None:
+            self.Message(['GetFiles allowed only inside device.'])
+            return True
         # TODO dialog with copy parameters
         # TODO progress dialog
         items = self.ffi.cast('struct PluginPanelItem *', PanelItem)
         DestPath = self.ffi.cast("wchar_t **", DestPath)
         dpath = self.ffi.string(DestPath[0])
+        log.debug('GetFiles: {} {} OpMode={}'.format(ItemsNumber, OpMode, dpath))
         for i in range(ItemsNumber):
             name = self.f2s(items[i].FindData.lpwszFileName)
+            if name in ('.', '..'):
+                continue
             sqname = os.path.join(self.devicepath, name)
             dqname = os.path.join(dpath, name)
-            #log.debug('pull: {} -> {} OpMode={}'.format(sqname, dqname, OpMode))
+            log.debug('pull: {} -> {} OpMode={}'.format(sqname, dqname, OpMode))
             try:
                 self.device.sync.pull(sqname, dqname)
             except AdbError as ex:
                 log.exception('AdbError')
                 self.Message(str(ex).split('\n'))
                 return False
-            except:
+            except Exception as ex:
                 log.exception('unknown exception:')
-                self.Message(['Unknown exception.'])
+                msg = str(ex).split('\n')
+                msg.insert(0, 'Unknown exception.')
+                self.Message(msg)
                 return False
         return True
 
     def PutFiles(self, PanelItem, ItemsNumber, Move, SrcPath, OpMode):
+        #super().PutFiles(PanelItem, ItemsNumber, Move, SrcPath, OpMode)
         if ItemsNumber == 0 or Move:
             return False
+        if self.device is None:
+            self.Message(['PetFiles allowed only inside device.'])
+            return True
         items = self.ffi.cast('struct PluginPanelItem *', PanelItem)
         spath = self.f2s(SrcPath)
         for i in range(ItemsNumber):
             name = self.f2s(items[i].FindData.lpwszFileName)
+            if name in ('.', '..'):
+                continue
             sqname = os.path.join(spath, name)
             dqname = os.path.join(self.devicepath, name)
             #log.debug('push: {} -> {} OpMode={}'.format(sqname, dqname, OpMode))
@@ -318,31 +379,138 @@ class Plugin(PluginVFS):
                 log.exception('AdbError')
                 self.Message(str(ex).split('\n'))
                 return False
-            except:
+            except Exception as ex:
                 log.exception('unknown exception:')
-                self.Message(['Unknown exception.'])
+                msg = str(ex).split('\n')
+                msg.insert(0, 'Unknown exception.')
+                self.Message(msg)
                 return False
         return True
 
     def DeleteFiles(self, PanelItem, ItemsNumber, OpMode):
-        return False
+        #super().DeleteFiles(PanelItem, ItemsNumber, OpMode)
         if ItemsNumber == 0:
             return False
-        # TODO dialog with delete parameters
-        # TODO progress dialog
-        # TODO delete remote files
+        if self.device is None:
+            self.Message(['DeleteFiles allowed only inside device.'])
+            return True
         items = self.ffi.cast('struct PluginPanelItem *', PanelItem)
+        if ItemsNumber > 1:
+            rc = self.ConfirmDialog('Delete', ['Do you wish to delete the files'])
+        else:
+            name = self.f2s(items[0].FindData.lpwszFileName)
+            rc = self.ConfirmDialog('Delete', ['Do you wish to delete the file', name])
+        if rc != 1:
+            return True
         for i in range(ItemsNumber):
             name = self.f2s(items[i].FindData.lpwszFileName)
+            if name in ('.', '..'):
+                continue
             dqname = os.path.join(self.devicepath, name)
             log.debug('remove: {}, OpMode={}'.format(dqname, OpMode))
             try:
-                pass
+                st = self.device.sync.stat(dqname)
+                if stat.S_ISDIR(st.mode):
+                    s = self.device.shell('rmdir '+dqname)
+                else:
+                    s = self.device.shell('rm '+dqname)
+                if s:
+                    log.debug('result:'+s)
+                    self.Message(s.split('\n'))
             except AdbError as ex:
                 log.exception('AdbError')
                 self.Message(str(ex).split('\n'))
-            except:
+                return False
+            except Exception as ex:
                 log.exception('unknown exception:')
-                self.Message(['Unknown exception.'])
+                msg = str(ex).split('\n')
+                msg.insert(0, 'Unknown exception.')
+                self.Message(msg)
                 return False
         return True
+
+    def MakeDirectory(self, Name, OpMode):
+        #super().DMakeDirectory(Name, OpMode)
+        if self.device is None:
+            self.Message(['Make directory allowed only inside device.'])
+            return True
+        name = self.ffi.cast("wchar_t **", Name)
+        name = self.ffi.string(name[0])
+
+        @self.ffi.callback("FARWINDOWPROC")
+        def DialogProc(hDlg, Msg, Param1, Param2):
+            if Msg == self.ffic.DN_INITDIALOG:
+                log.debug('INITDIALOG')
+                try:
+                    dlg.SetText(dlg.ID_path, name)
+                    dlg.SetFocus(dlg.ID_path)
+                except:
+                    log.exception('bang')
+                log.debug('/INITDIALOG')
+            elif Msg == self.ffic.DN_BTNCLICK:
+                pass
+            elif Msg == self.ffic.DN_KEY:
+                if Param2 == self.ffic.KEY_ESC:
+                    return 0
+                if Param2 == self.ffic.KEY_LEFT:
+                    pass
+                elif Param2 == self.ffic.KEY_UP:
+                    pass
+                elif Param2 == self.ffic.KEY_RIGHT:
+                    pass
+                elif Param2 == self.ffic.KEY_DOWN:
+                    pass
+                elif Param2 == self.ffic.KEY_ENTER:
+                    pass
+                elif Param2 == self.ffic.KEY_ESC:
+                    pass
+            elif Msg == self.ffic.DN_MOUSECLICK:
+                pass
+            return self.info.DefDlgProc(hDlg, Msg, Param1, Param2)
+
+        b = DialogBuilder(
+            self,
+            DialogProc,
+            "Make folder",
+            "makefolder",
+            0,
+            VSizer(
+                TEXT("Create the &folder"),
+                EDIT("path", 36, 40),
+                HLine(),
+                HSizer(
+                    BUTTON('OK', "OK", True, flags=self.ffic.DIF_CENTERGROUP),
+                    BUTTON('CANCEL', "Cancel", flags=self.ffic.DIF_CENTERGROUP),
+                ),
+            ),
+        )
+        dlg = b.build(-1, -1)
+
+        res = self.info.DialogRun(dlg.hDlg)
+        if res == dlg.ID_OK:
+            path = dlg.GetText(dlg.ID_path).strip()
+            path = os.path.normpath(os.path.join(self.devicepath, path))
+            log.debug('mkdir {}'.format(path))
+            if path:
+                try:
+                    s = self.device.shell('mkdir '+path)
+                    if s:
+                        log.debug('result:'+s)
+                        self.Message(s.split('\n'))
+                except AdbError as ex:
+                    log.exception('AdbError')
+                    self.Message(str(ex).split('\n'))
+                    return False
+                except Exception as ex:
+                    log.exception('unknown exception:')
+                    msg = str(ex).split('\n')
+                    msg.insert(0, 'Unknown exception.')
+                    self.Message(msg)
+                    return False
+        self.info.DialogFree(dlg.hDlg)
+
+        return True
+
+    def ProcessKey(self, Key, ControlState):
+        #log.debug("ProcessKey({0}, {1})".format(Key, ControlState))
+        return 0
