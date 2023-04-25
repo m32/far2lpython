@@ -258,7 +258,7 @@ class Plugin(PluginVFS):
         #if OpMode & self.ffic.OPM_FIND:
         #    return False
         name = self.f2s(Dir)
-        log.debug('goto.0: devicepath={} name={}'.format(self.devicepath, name))
+        #log.debug('goto.0: devicepath={} name={}'.format(self.devicepath, name))
         if name == "":
             self.info.Control(self.hplugin, self.ffic.FCTL_CLOSEPLUGIN, 0, 0)
             return True
