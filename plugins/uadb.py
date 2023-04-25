@@ -342,7 +342,7 @@ class Plugin(PluginVFS):
                 continue
             sqname = os.path.join(self.devicepath, name)
             dqname = os.path.join(dpath, name)
-            log.debug('pull: {} -> {} OpMode={}'.format(sqname, dqname, OpMode))
+            #log.debug('pull: {} -> {} OpMode={}'.format(sqname, dqname, OpMode))
             try:
                 self.device.sync.pull(sqname, dqname)
             except AdbError as ex:
