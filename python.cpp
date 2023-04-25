@@ -119,7 +119,7 @@ protected:
             return nullptr;
         }
 
-        pyPluginManager = PyObject_GetAttrString(pyPluginModule, "pluginmanager");
+        pyPluginManager = PyObject_GetAttrString(pyPluginModule, "_pluginmanager");
         if (pyPluginManager == NULL) {
             PYTHON_LOG("Failed to load \"far2l.pluginmanager\"\n");
             Py_DECREF(pyPluginModule);
