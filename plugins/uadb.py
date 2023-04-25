@@ -335,7 +335,7 @@ class Plugin(PluginVFS):
         items = self.ffi.cast('struct PluginPanelItem *', PanelItem)
         DestPath = self.ffi.cast("wchar_t **", DestPath)
         dpath = self.ffi.string(DestPath[0])
-        log.debug('GetFiles: {} {} OpMode={}'.format(ItemsNumber, OpMode, dpath))
+        #log.debug('GetFiles: {} {} OpMode={}'.format(ItemsNumber, OpMode, dpath))
         for i in range(ItemsNumber):
             name = self.f2s(items[i].FindData.lpwszFileName)
             if name in ('.', '..'):
