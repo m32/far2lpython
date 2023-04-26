@@ -62,6 +62,7 @@ class PluginManager:
                 del sys.modules[name]
                 for i in range(len(self.plugins)):
                     self.plugins[i].Plugin.number = i
+                    self.plugins[i].Plugin.USERHOME = USERHOME
                 return
         log.error("install plugin: {0} - not installed".format(name))
 
