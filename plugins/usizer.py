@@ -28,7 +28,8 @@ class Plugin(PluginBase):
                     dlg.SetCheck(dlg.ID_vallow, 1)
                     dlg.SetFocus(dlg.ID_vseconds)
                     # override value from constructor
-                    dlg.SetCheck(dlg.ID_vp1, 1)
+                    dlg.SetCheck(dlg.ID_vr1, self.ffic.BSTATE_CHECKED)
+                    dlg.SetCheck(dlg.ID_vc3, self.ffic.BSTATE_CHECKED)
                 except:
                     log.exception('bang')
             elif Msg == self.ffic.DN_BTNCLICK:
@@ -75,9 +76,14 @@ class Plugin(PluginBase):
                 #MEMOEDIT("vmemo", 40, 5, 512),
                 HLine(),
                 HSizer(
-                    RADIOBUTTON('vp1', "p1", flags=self.ffic.DIF_GROUP),
-                    RADIOBUTTON('vp2', "p2"),
-                    RADIOBUTTON('vp3', "p3", True),
+                    RADIOBUTTON('vr1', "p1", flags=self.ffic.DIF_GROUP),
+                    RADIOBUTTON('vr2', "p2"),
+                    RADIOBUTTON('vr3', "p3", self.ffic.BSTATE_CHECKED),
+                ),
+                VSizer(
+                    CHECKBOX('vc1', "c1"),
+                    CHECKBOX('vc2', "c2"),
+                    CHECKBOX('vc3', "c3", self.ffic.BSTATE_CHECKED),
                 ),
                 HSizer(
                     LISTBOX("vlist", 1, "element A", "element B", "element C", "element D"),
@@ -96,14 +102,17 @@ class Plugin(PluginBase):
         res = self.info.DialogRun(dlg.hDlg)
         log.debug('''\
 ok={} \
-a path={} \
-b path={} \
+a path=[{}] \
+b path=[{}] \
 allow={} \
-pass={} \
-seconds={} \
-vp1={} \
-vp2={} \
-vp3={} \
+pass=[{}] \
+seconds=[{}] \
+radio1={} \
+radio2={} \
+radio3={} \
+checkbox1={} \
+checkbox2={} \
+checkbox3={} \
 vlist={} \
 vcombo={} \
 '''.format(
@@ -113,9 +122,12 @@ vcombo={} \
     dlg.GetCheck(dlg.ID_vallow),
     dlg.GetText(dlg.ID_vuserpass),
     dlg.GetText(dlg.ID_vseconds),
-    dlg.GetCheck(dlg.ID_vp1),
-    dlg.GetCheck(dlg.ID_vp2),
-    dlg.GetCheck(dlg.ID_vp3),
+    dlg.GetCheck(dlg.ID_vr1),
+    dlg.GetCheck(dlg.ID_vr2),
+    dlg.GetCheck(dlg.ID_vr3),
+    dlg.GetCheck(dlg.ID_vc1),
+    dlg.GetCheck(dlg.ID_vc2),
+    dlg.GetCheck(dlg.ID_vc3),
     dlg.GetCurPos(dlg.ID_vlist),
     dlg.GetCurPos(dlg.ID_vcombo),
 ))
