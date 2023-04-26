@@ -762,4 +762,12 @@ class Plugin(PluginVFS):
 
     def ProcessKey(self, Key, ControlState):
         #log.debug("ProcessKey({0}, {1})".format(Key, ControlState))
-        return 0
+        if (
+            False and
+            Key == self.ffic.KEY_CTRLA-self.ffic.KEY_CTRL
+            and ControlState == self.ffic.PKF_CONTROL
+        ):
+            log.debug("ProcessKey: CTRL+A")
+            #self.EditAttributes()
+            return True
+        return False
