@@ -15,7 +15,7 @@ CFLAGS += $(shell $(PYCONFIG) --cflags)
 LDFLAGS += -lpython${python_version} $(shell $(PYCONFIG) --ldflags)
 
 CFLAGS += \
-    -DVIRTUAL_PYTHON_PATH=L\"$(VPYTHON)\" \
+    -DVIRTUAL_PYTHON=\"$(VPYTHON)\" \
     -DPYTHON_LIBRARY=\"$(PYTHON_LIBRARY)\" \
     -DWINPORT_DIRECT \
     -DUNICODE \
