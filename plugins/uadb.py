@@ -1,4 +1,5 @@
 import os
+import time
 import stat
 import re
 import logging
@@ -20,6 +21,9 @@ from adbutils import AdbClient, AdbError
 
 log = logging.getLogger(__name__)
 
+TICKS_PER_SECOND = 10000000
+EPOCH_DIFFERENCE = 11644473600
+
 FILE_ATTRIBUTE_READONLY             =0x00000001
 FILE_ATTRIBUTE_HIDDEN               =0x00000002
 FILE_ATTRIBUTE_SYSTEM               =0x00000004
@@ -39,17 +43,6 @@ FILE_ATTRIBUTE_VIRTUAL              =0x00010000
 FILE_ATTRIBUTE_NO_SCRUB_DATA        =0x00020000
 FILE_ATTRIBUTE_BROKEN               =0x00200000
 FILE_ATTRIBUTE_EXECUTABLE           =0x00400000
-
-TICKSPERSEC        =10000000
-TICKSPERMSEC       =10000
-SECSPERDAY         =86400
-SECSPERHOUR        =3600
-SECSPERMIN         =60
-MINSPERHOUR        =60
-HOURSPERDAY        =24
-EPOCHWEEKDAY       =1  #/* Jan 1, 1601 was Monday */
-DAYSPERWEEK        =7
-MONSPERYEAR        =12
 
 class Config:
     def __init__(self, home):
@@ -281,7 +274,8 @@ class Shell:
                 continue
             rm = self.file_re.match(line)
             if not rm:
-                log.debug('ignored entry in ({}): {}'.format(top, line))
+                if line.split()[0] != 'total':
+                    log.debug('ignored entry in ({}): {}'.format(top, line))
                 continue
             entry = Entry(top, **rm.groupdict())
             entry.update(self.box)
@@ -368,29 +362,8 @@ class Plugin(PluginVFS):
             #datetime.datetime.fromtimestamp(rec.time).strftime('%Y-%m-%d %H:%M:%S')
             item = self.setName(i, rec.name, attr, rec.size)
             item.dwUnixMode = rec.mode
-            # local timezone is in use
-            t = rec.date
-            if t.month < 3:
-                month = t.month + 13
-                year = t.year -1
-            else:
-                month = t.month + 1
-                year = t.year
-            cleaps = (3 * (year // 100) + 3) // 4
-            day = (
-                (36525 * year) // 100 - cleaps +
-                (1959 * month) // 64 +
-                t.weekday() -
-                584817
-            )
 
-            t = ((((
-                day * HOURSPERDAY
-                + t.hour) * MINSPERHOUR + 
-                t.minute) * SECSPERMIN +
-                t.second ) * 1000 +
-                0
-            ) * TICKSPERMSEC
+            t = (int(time.mktime(rec.date.timetuple())) + EPOCH_DIFFERENCE) * TICKS_PER_SECOND
             item.ftLastWriteTime.dwHighDateTime = t >> 32
             item.ftLastWriteTime.dwLowDateTime = t & 0xffffffff
             i += 1
@@ -553,6 +526,19 @@ class Plugin(PluginVFS):
             self.config.save()
 
     def GetOpenPluginInfo(self, OpenInfo):
+        if self.device is not None:
+            title = "adb://{}{}".format(self.device.serial, self.devicepath)
+        else:
+            title = self.label
+        #
+        # WARNING WARNING - dangerous pointers and lifetime of a variable in python
+        # anything passed as a pointer must be kept in local python variables
+        # otherwise gc/cffi will delete them and miracles will happen
+        #
+        self._curdir = self.s2f(self.devicepath)
+        self._title = self.s2f(title)
+        self._label = self.s2f(self.label)
+
         Info = self.ffi.cast("struct OpenPluginInfo *", OpenInfo)
         Info.Flags = (
             self.ffic.OPIF_USEFILTER
@@ -562,13 +548,9 @@ class Plugin(PluginVFS):
             |self.ffic.OPIF_SHOWNAMESONLY
         )
         Info.HostFile = self.ffi.NULL
-        Info.CurDir = self.s2f(self.devicepath)
-        if self.device is not None:
-            title = "adb://{}{}".format(self.device.serial, self.devicepath)
-        else:
-            title = self.label
-        Info.Format = self.s2f(self.label)
-        Info.PanelTitle = self.s2f(" *"+title+"* ")
+        Info.CurDir = self._curdir
+        Info.Format = self._label
+        Info.PanelTitle = self._title
         #const struct InfoPanelLine *InfoLines;
         #int                   InfoLinesNumber;
         #const wchar_t * const   *DescrFiles;
@@ -579,10 +561,13 @@ class Plugin(PluginVFS):
         #Info.StartSortMode = self.ffic.SM_NAME
         #Info.StartSortOrder = 0
         #const struct KeyBarTitles *KeyBar;
-        Info.ShortcutData = self.s2f('py:adb cd '+title)
+        #Info.ShortcutData = self.s2f('py:adb cd '+title)
 
     def GetFindData(self, PanelItem, ItemsNumber, OpMode):
         #super().GetFindData(PanelItem, ItemsNumber, OpMode)
+        if OpMode & self.ffic.OPM_FIND:
+            # find in root of device causes core dump on linux
+            return False
         if self.device is None:
             try:
                 self.loadDevices()
@@ -710,6 +695,7 @@ class Plugin(PluginVFS):
             return True
         # TODO dialog with copy parameters
         # TODO progress dialog
+        # TODO copy in background
         items = self.ffi.cast('struct PluginPanelItem *', PanelItem)
         DestPath = self.ffi.cast("wchar_t **", DestPath)
         dpath = self.ffi.string(DestPath[0])
@@ -895,12 +881,13 @@ class Plugin(PluginVFS):
     def ProcessKey(self, Key, ControlState):
         #log.debug("ProcessKey({0}, {1})".format(Key, ControlState))
         if ControlState == self.ffic.PKF_CONTROL:
-            log.debug("ProcessKey({0}, {1})".format(Key, ControlState))
-        if (
-            Key == self.ffic.KEY_CTRLQ-self.ffic.KEY_CTRL
-            and ControlState == self.ffic.PKF_CONTROL
-        ):
-            return True
+            log.debug("ProcessKey(0x{:x}, {})".format(Key, ControlState))
+        #if (
+        #    Key == 0x80051 # FARMACRO_KEY_EVENT = 0x80000|1...
+        #    and ControlState == self.ffic.PKF_CONTROL
+        #):
+        #    # 0x80051 = CTRL+Q = quick view, here its equal to core dump when scanning /proc directory
+        #    return True
         if (
             False and
             Key == self.ffic.KEY_CTRLA-self.ffic.KEY_CTRL
