@@ -18,7 +18,7 @@ cpp.define("WINPORT_REGISTRY")
 cpp.define("UNICODE")
 cpp.define("PROCPLUGINMACROFUNC")
 cpp.define("__GNUC__")
-#cpp.define("_FAR_HAS_NAMELESS_UNIONS")
+cpp.define("_FAR_NO_NAMELESS_UNIONS")
 cpp.define("_FILE_OFFSET_BITS 64")
 cpp.define("FAR_PYTHON_GEN")
 data = """\

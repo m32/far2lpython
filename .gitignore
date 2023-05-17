@@ -8,3 +8,5 @@ python.o
 
 far2l-docker
 farsizer.py
+
+x-*

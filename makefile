@@ -38,8 +38,8 @@ consts.h : consts.gen
 	cpp -E -P -xc consts.gen | sh > consts.h
 
 far2lcffi.py.cpp: consts.h pythongen.py
-	$(VPYTHON) pythongen.py $(FAR2L)
+	$(VPYTHON) pythongen.py $(FAR2L) .
 	cp $@ far2l
 
 clean:
-	rm -f consts.h far2lcffi.py python.far-plug-wide python.o
+	rm -f consts.h far2lcffi.py.cpp far2l/far2lcffi.py.cpp python.far-plug-wide python.o
