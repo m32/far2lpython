@@ -10,3 +10,6 @@ far2l-docker
 farsizer.py
 
 x-*
+adbutils
+mc
+mc_adbfs
