@@ -1,0 +1,2 @@
+def CheckForEscape():
+    return False

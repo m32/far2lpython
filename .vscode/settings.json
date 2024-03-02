@@ -2,5 +2,8 @@
     "files.associations": {},
     "python.analysis.extraPaths": [
         "${workspaceRoot}",
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    }
 }

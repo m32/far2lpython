@@ -1,0 +1,8 @@
+#!/bin/bash
+vpip3(){
+    /devel/bin/python3/bin/python -m pip $*
+}
+
+vpip3 install --upgrade pip
+vpip3 install -r x-setup-vpython3-pip3-data
+vpip3 install --force-reinstall --no-binary :all: cffi

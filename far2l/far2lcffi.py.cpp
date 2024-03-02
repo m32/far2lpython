@@ -1,3 +1,32 @@
+#define RIGHT_ALT_PRESSED     0x0001 // the right alt key is pressed.
+#define LEFT_ALT_PRESSED      0x0002 // the left alt key is pressed.
+#define RIGHT_CTRL_PRESSED    0x0004 // the right ctrl key is pressed.
+#define LEFT_CTRL_PRESSED     0x0008 // the left ctrl key is pressed.
+#define SHIFT_PRESSED         0x0010 // the shift key is pressed.
+#define NUMLOCK_ON            0x0020 // the numlock light is on.
+#define SCROLLLOCK_ON         0x0040 // the scrolllock light is on.
+#define CAPSLOCK_ON           0x0080 // the capslock light is on.
+#define ENHANCED_KEY          0x0100 // the key is enhanced.
+
+#define FROM_LEFT_1ST_BUTTON_PRESSED    0x0001
+#define RIGHTMOST_BUTTON_PRESSED        0x0002
+#define FROM_LEFT_2ND_BUTTON_PRESSED    0x0004
+#define FROM_LEFT_3RD_BUTTON_PRESSED    0x0008
+#define FROM_LEFT_4TH_BUTTON_PRESSED    0x0010
+
+#define MOUSE_MOVED   0x0001
+#define DOUBLE_CLICK  0x0002
+#define MOUSE_WHEELED 0x0004
+#define MOUSE_HWHEELED 0x0008
+
+#define KEY_EVENT         0x0001 // Event contains key event record
+#define MOUSE_EVENT       0x0002 // Event contains mouse event record
+#define WINDOW_BUFFER_SIZE_EVENT 0x0004 // Event contains window change event record
+#define MENU_EVENT 0x0008 // Event contains menu event record
+#define FOCUS_EVENT 0x0010 // event contains focus change
+#define BRACKETED_PASTE_EVENT 0x0020 // event contains bracketed paste state change
+#define CALLBACK_EVENT 0x0040 // callback to be invoked when its record dequeued, its translated into NOOP_EVENT when invoked
+#define NOOP_EVENT 0x0080 // nothing interesting, typically injected to kick events dispatcher
 //#line 89 "../far2l/WinPort/WinCompat.h"
 typedef uint32_t ULONG;
 typedef unsigned int UINT;
@@ -302,9 +331,9 @@ typedef struct tagRECT {
 } RECT;
 //#line 901 "../far2l/WinPort/WinCompat.h"
 typedef void *HMODULE;
-//#line 1011 "../far2l/WinPort/WinCompat.h"
+//#line 1026 "../far2l/WinPort/WinCompat.h"
 typedef void *HKL;
-//#line 1202 "../far2l/WinPort/WinCompat.h"
+//#line 1217 "../far2l/WinPort/WinCompat.h"
 typedef struct _cpinfo {
     UINT    MaxCharSize;
     BYTE    DefaultChar[4];
@@ -321,9 +350,9 @@ typedef struct _cpinfoex {
 } CPINFOEX, *LPCPINFOEX;
 
 typedef BOOL (*CODEPAGE_ENUMPROCW)(LPWSTR);
-//#line 1233 "../far2l/WinPort/WinCompat.h"
+//#line 1248 "../far2l/WinPort/WinCompat.h"
 typedef LONG NTSTATUS;
-//#line 1433 "../far2l/WinPort/WinCompat.h"
+//#line 1448 "../far2l/WinPort/WinCompat.h"
 typedef struct _nlsversioninfo{
     DWORD dwNLSVersionInfoSize;
     DWORD dwNLSVersion;
@@ -336,7 +365,7 @@ typedef struct _nlsversioninfo{
 typedef UINT_PTR            WPARAM;
 typedef LONG_PTR            LPARAM;
 typedef LONG_PTR            LRESULT;
-//#line 1475 "../far2l/WinPort/WinCompat.h"
+//#line 1490 "../far2l/WinPort/WinCompat.h"
 typedef DWORD (*WINPORT_THREAD_START_ROUTINE)(LPVOID lpThreadParameter);
 typedef BOOL (*WINPORT_HANDLER_ROUTINE)(  DWORD CtrlType );
 
@@ -346,19 +375,16 @@ typedef BOOL (*WINPORT_HANDLER_ROUTINE)(  DWORD CtrlType );
 typedef WINPORT_HANDLER_ROUTINE PHANDLER_ROUTINE;
 typedef WINPORT_THREAD_START_ROUTINE LPTHREAD_START_ROUTINE, PTHREAD_START_ROUTINE;
 
-typedef VOID (*PCONSOLE_SCROLL_CALLBACK)(PVOID pContext, unsigned int Width, CHAR_INFO *Charss);
+typedef VOID (*PCONSOLE_SCROLL_CALLBACK)(PVOID pContext, HANDLE hConsole, unsigned int Width, CHAR_INFO *Chars);
 //#line 107 "../far2l/far2l/far2sdk/farplug-wide.h"
 //#pragma pack(2)
 //#line 138 "../far2l/far2l/far2sdk/farplug-wide.h"
 typedef struct _INPUT_RECORD INPUT_RECORD;
 typedef struct _CHAR_INFO    CHAR_INFO;
-
-
+//#line 5 "../far2l/far2l/far2sdk/farcommon.h"
 typedef int FarLangMsgID;
-
-
-
-
+typedef uint32_t FarKey;
+//#line 144 "../far2l/far2l/far2sdk/farplug-wide.h"
 enum FARMESSAGEFLAGS
 {
 	FMSG_WARNING             = 0x00000001,
@@ -370,6 +396,7 @@ enum FARMESSAGEFLAGS
 
 	FMSG_COLOURS             = 0x00000040,
 
+	FMSG_DISPLAYNOTIFY       = 0x00000080,
 
 	FMSG_MB_OK               = 0x00010000,
 	FMSG_MB_OKCANCEL         = 0x00020000,
@@ -409,7 +436,7 @@ enum DialogItemTypes
 
 	DI_USERCONTROL=255,
 };
-//#line 208 "../far2l/far2l/far2sdk/farplug-wide.h"
+//#line 206 "../far2l/far2l/far2sdk/farplug-wide.h"
 enum FarDialogItemFlags
 {
 	DIF_NONE                  = 0,
@@ -552,6 +579,11 @@ enum FarMessagesProc
 
 	DM_GETCOLOR,
 	DM_SETCOLOR,
+
+	DM_SETREADONLY,
+
+	DM_GETTRUECOLOR,
+	DM_SETTRUECOLOR,
 
 
 	DN_FIRST=0x1000,
@@ -776,7 +808,7 @@ struct DialogInfo
 	int StructSize;
 	GUID Id;
 };
-//#line 605 "../far2l/far2l/far2sdk/farplug-wide.h"
+//#line 608 "../far2l/far2l/far2sdk/farplug-wide.h"
 enum FARDIALOGFLAGS
 {
 	FDLG_WARNING             = 0x00000001,
@@ -1523,6 +1555,28 @@ struct FarSetColors
 	LPBYTE Colors;
 };
 
+struct FarTrueColor
+{
+	unsigned char R;
+	unsigned char G;
+	unsigned char B;
+	unsigned char Flags;
+};
+
+struct FarTrueColorForeAndBack
+{
+	struct FarTrueColor Fore;
+	struct FarTrueColor Back;
+};
+
+struct DialogItemTrueColors
+{
+	struct FarTrueColorForeAndBack Normal;
+	struct FarTrueColorForeAndBack Hilighted;
+	struct FarTrueColorForeAndBack Frame;
+	struct FarTrueColorForeAndBack Reserved;
+};
+
 enum WINDOWINFO_TYPE
 {
 
@@ -1746,7 +1800,7 @@ enum EDITOR_CONTROL_COMMANDS
 	ECTL_ADDTRUECOLOR,
 	ECTL_GETTRUECOLOR,
 };
-//#line 1578 "../far2l/far2l/far2sdk/farplug-wide.h"
+//#line 1603 "../far2l/far2l/far2sdk/farplug-wide.h"
 enum EDITOR_SETPARAMETER_TYPES
 {
 	ESPT_TABSIZE,
@@ -1937,19 +1991,10 @@ struct EditorColor
 	int Color;
 };
 
-struct FarTrueColor
-{
-	unsigned char R;
-	unsigned char G;
-	unsigned char B;
-	unsigned char Flags;
-};
-
 struct EditorTrueColor
 {
 	struct EditorColor Base;
-	struct FarTrueColor TrueFore;
-	struct FarTrueColor TrueBack;
+	struct FarTrueColorForeAndBack TrueColor;
 };
 
 struct EditorSaveFile
@@ -2034,7 +2079,7 @@ typedef int ( *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root, int DestSiz
 typedef BOOL ( *FARSTDADDENDSLASH)(wchar_t *Path);
 typedef int ( *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
 typedef wchar_t *( *FARSTDPASTEFROMCLIPBOARD)(void);
-typedef int ( *FARSTDINPUTRECORDTOKEY)(const INPUT_RECORD *r);
+typedef FarKey ( *FARSTDINPUTRECORDTOKEY)(const INPUT_RECORD *r);
 typedef int ( *FARSTDLOCALISLOWER)(wchar_t Ch);
 typedef int ( *FARSTDLOCALISUPPER)(wchar_t Ch);
 typedef int ( *FARSTDLOCALISALPHA)(wchar_t Ch);
@@ -2068,11 +2113,11 @@ enum XLATMODE
 	XLAT_CONVERTALLCMDLINE = 0x00010000UL,
 };
 
-typedef size_t ( *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
+typedef size_t ( *FARSTDKEYTOKEYNAME)(FarKey Key,wchar_t *KeyText,size_t Size);
 
 typedef wchar_t*( *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,DWORD Flags);
 
-typedef int ( *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
+typedef FarKey ( *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
 
 typedef int ( *FRSUSERFUNC)(
 	const struct FAR_FIND_DATA *FData,
@@ -2125,7 +2170,8 @@ enum EXECUTEFLAGS
 	EF_SUDO = 0x04,
 	EF_NOTIFY = 0x08,
 	EF_NOCMDPRINT = 0x10,
-	EF_OPEN = 0x20
+	EF_OPEN = 0x20,
+	EF_MAYBGND = 0x40
 };
 
 typedef int ( *FAREXECUTE)(const wchar_t *CmdStr, unsigned int ExecFlags);
@@ -2138,7 +2184,7 @@ typedef int ( *FARDISPATCHNTRTHRDCALLS)();
 typedef void ( *FARBACKGROUNDTASK)(const wchar_t *Info, BOOL Started);
 
 typedef size_t ( *FARSTRCELLSCOUNT)(const wchar_t *Str, size_t CharsCount);
-//#line 1977 "../far2l/far2l/far2sdk/farplug-wide.h"
+//#line 1994 "../far2l/far2l/far2sdk/farplug-wide.h"
 typedef size_t ( *FARSTRSIZEOFCELLS)(const wchar_t *Str, size_t CharsCount, size_t *CellsCount, BOOL RoundUp);
 
 enum BOX_DEF_SYMBOLS
@@ -2553,7 +2599,7 @@ struct RegExpSearch
 	int Count;
 	void* Reserved;
 };
-//#line 2399 "../far2l/far2l/far2sdk/farplug-wide.h"
+//#line 2416 "../far2l/far2l/far2sdk/farplug-wide.h"
 	void PluginModuleOpen(const char *path);
 	void ClosePluginW(HANDLE hPlugin);
 	int CompareW(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
@@ -2565,6 +2611,7 @@ struct RegExpSearch
 	void FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 	int GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 	int GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+	int GetLinkTargetW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,wchar_t *Target,size_t TargetSize,int OpMode);
 	int GetMinFarVersionW(void);
 	void GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
 	void GetPluginInfoW(struct PluginInfo *Info);
@@ -2589,7 +2636,7 @@ struct RegExpSearch
 	int SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
 	int SetFindListW(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 	void SetStartupInfoW(const struct PluginStartupInfo *Info);
-//#line 2444 "../far2l/far2l/far2sdk/farplug-wide.h"
+//#line 2462 "../far2l/far2l/far2sdk/farplug-wide.h"
 //#pragma pack()
 //#line 44 "../far2l/far2l/far2sdk/farcolor.h"
 enum PaletteColors
@@ -2768,641 +2815,705 @@ enum PaletteColors
 
 	COL_LASTPALETTECOLOR
 };
-//#line 46 "../far2l/far2l/far2sdk/farkeys.h"
+//#line 56 "../far2l/far2l/far2sdk/farkeys.h"
 enum BaseDefKeyboard
+
 {
-	KEY_CTRLMASK             =0xFFF00000,
-	KEY_CTRL                 =0x01000000,
-	KEY_ALT                  =0x02000000,
-	KEY_SHIFT                =0x04000000,
+	KEY_CTRLMASK = 0xFFC00000U,
 
-	KEY_RCTRL                =0x10000000,
-	KEY_RALT                 =0x20000000,
+	KEY_M_OEM    = 0x00400000U,
+	KEY_M_SPEC   = 0x00800000U,
+	KEY_ALTDIGIT = 0x01000000U,
+	KEY_RSHIFT   = 0x02000000U,
 
-	KEY_BRACKET              =91,
-	KEY_BACKBRACKET          =93,
-	KEY_COMMA                =44,
-	KEY_QUOTE                =34,
-	KEY_DOT                  =46,
-	KEY_SLASH                =47,
-	KEY_COLON                =58,
-	KEY_SEMICOLON            =59,
-	KEY_BACKSLASH            =92,
+	KEY_CTRL     = 0x04000000U,
+	KEY_ALT      = 0x08000000U,
+	KEY_SHIFT    = 0x10000000U,
 
-	KEY_BS                   =0x00000008,
-	KEY_TAB                  =0x00000009,
-	KEY_ENTER                =0x0000000D,
-	KEY_ESC                  =0x0000001B,
-	KEY_SPACE                =0x00000020,
-
-	KEY_MASKF                =0x0001FFFF,
-
-	KEY_FKEY_BEGIN           =0x00010000,
-
-	KEY_BREAK                =0x00010000+0x03,
-
-	KEY_PAUSE                =0x00010000+0x13,
-	KEY_CAPSLOCK             =0x00010000+0x14,
-
-	KEY_PGUP                 =0x00010000+0x21,
-	KEY_PGDN                 =0x00010000+0x22,
-	KEY_END                  =0x00010000+0x23,
-	KEY_HOME                 =0x00010000+0x24,
-	KEY_LEFT                 =0x00010000+0x25,
-	KEY_UP                   =0x00010000+0x26,
-	KEY_RIGHT                =0x00010000+0x27,
-	KEY_DOWN                 =0x00010000+0x28,
-	KEY_PRNTSCRN             =0x00010000+0x2C,
-	KEY_INS                  =0x00010000+0x2D,
-	KEY_DEL                  =0x00010000+0x2E,
-
-	KEY_LWIN                 =0x00010000+0x5B,
-	KEY_RWIN                 =0x00010000+0x5C,
-	KEY_APPS                 =0x00010000+0x5D,
-	KEY_STANDBY              =0x00010000+0x5F,
-
-	KEY_NUMPAD0              =0x00010000+0x60,
-	KEY_NUMPAD1              =0x00010000+0x61,
-	KEY_NUMPAD2              =0x00010000+0x62,
-	KEY_NUMPAD3              =0x00010000+0x63,
-	KEY_NUMPAD4              =0x00010000+0x64,
-	KEY_NUMPAD5              =0x00010000+0x65,
-	KEY_CLEAR                =KEY_NUMPAD5,
-	KEY_NUMPAD6              =0x00010000+0x66,
-	KEY_NUMPAD7              =0x00010000+0x67,
-	KEY_NUMPAD8              =0x00010000+0x68,
-	KEY_NUMPAD9              =0x00010000+0x69,
-
-	KEY_MULTIPLY             =0x00010000+0x6A,
-	KEY_ADD                  =0x00010000+0x6B,
-	KEY_SUBTRACT             =0x00010000+0x6D,
-	KEY_DECIMAL              =0x00010000+0x6E,
-	KEY_DIVIDE               =0x00010000+0x6F,
-
-	KEY_F1                   =0x00010000+0x70,
-	KEY_F2                   =0x00010000+0x71,
-	KEY_F3                   =0x00010000+0x72,
-	KEY_F4                   =0x00010000+0x73,
-	KEY_F5                   =0x00010000+0x74,
-	KEY_F6                   =0x00010000+0x75,
-	KEY_F7                   =0x00010000+0x76,
-	KEY_F8                   =0x00010000+0x77,
-	KEY_F9                   =0x00010000+0x78,
-	KEY_F10                  =0x00010000+0x79,
-	KEY_F11                  =0x00010000+0x7A,
-	KEY_F12                  =0x00010000+0x7B,
-
-	KEY_F13                  =0x00010000+0x7C,
-	KEY_F14                  =0x00010000+0x7D,
-	KEY_F15                  =0x00010000+0x7E,
-	KEY_F16                  =0x00010000+0x7F,
-	KEY_F17                  =0x00010000+0x80,
-	KEY_F18                  =0x00010000+0x81,
-	KEY_F19                  =0x00010000+0x82,
-	KEY_F20                  =0x00010000+0x83,
-	KEY_F21                  =0x00010000+0x84,
-	KEY_F22                  =0x00010000+0x85,
-	KEY_F23                  =0x00010000+0x86,
-	KEY_F24                  =0x00010000+0x87,
-
-	KEY_NUMLOCK              =0x00010000+0x90,
-	KEY_SCROLLLOCK           =0x00010000+0x91,
-//#line 166 "../far2l/far2l/far2sdk/farkeys.h"
-	KEY_CTRLALTSHIFTPRESS    =0x00020000+1,
-	KEY_CTRLALTSHIFTRELEASE  =0x00020000+2,
-
-	KEY_MSWHEEL_UP           =0x00020000+3,
-	KEY_MSWHEEL_DOWN         =0x00020000+4,
-	KEY_NUMDEL               =0x00020000+9,
-	KEY_NUMENTER             =0x00020000+0xB,
-
-	KEY_MSWHEEL_LEFT         =0x00020000+0xC,
-	KEY_MSWHEEL_RIGHT        =0x00020000+0xD,
-
-	KEY_MSLCLICK             =0x00020000+0xF,
-	KEY_MSRCLICK             =0x00020000+0x10,
-
-	KEY_MSM1CLICK            =0x00020000+0x11,
-	KEY_MSM2CLICK            =0x00020000+0x12,
-	KEY_MSM3CLICK            =0x00020000+0x13,
+	KEY_RCTRL    = 0x20000000U,
+	KEY_RALT     = 0x40000000U,
 
 
 
-	KEY_VK_0xFF_BEGIN        =0x00010000+0x00000100,
-	KEY_VK_0xFF_END          =0x00010000+0x000001FF,
+	KEY_BRACKET     = 91,
+	KEY_BACKBRACKET = 93,
+	KEY_COMMA       = 44,
+	KEY_QUOTE       = 34,
+	KEY_DOT         = 46,
+	KEY_SLASH       = 47,
+	KEY_COLON       = 58,
+	KEY_SEMICOLON   = 59,
+	KEY_BACKSLASH   = 92,
 
-	KEY_END_FKEY             =0x0001FFFF,
+	KEY_BS    = 0x00000008U,
+	KEY_TAB   = 0x00000009U,
+	KEY_ENTER = 0x0000000DU,
+	KEY_ESC   = 0x0000001BU,
+	KEY_SPACE = 0x00000020U,
 
-	KEY_NONE                 =0x00030000+1,
-	KEY_IDLE                 =0x00030000+2,
+	KEY_MASKF = 0x002FFFFFU,
 
-	KEY_KILLFOCUS            =0x00030000+6,
-	KEY_GOTFOCUS             =0x00030000+7,
-	KEY_CONSOLE_BUFFER_RESIZE=0x00030000+8,
+	KEY_FKEY_BEGIN = 0x00200000U,
+
+	KEY_BREAK = 0x00200000U + 0x03,
+
+	KEY_PAUSE    = 0x00200000U + 0x13,
+	KEY_CAPSLOCK = 0x00200000U + 0x14,
+
+	KEY_PGUP     = 0x00200000U + 0x21,
+	KEY_PGDN     = 0x00200000U + 0x22,
+	KEY_END      = 0x00200000U + 0x23,
+	KEY_HOME     = 0x00200000U + 0x24,
+	KEY_LEFT     = 0x00200000U + 0x25,
+	KEY_UP       = 0x00200000U + 0x26,
+	KEY_RIGHT    = 0x00200000U + 0x27,
+	KEY_DOWN     = 0x00200000U + 0x28,
+	KEY_PRNTSCRN = 0x00200000U + 0x2C,
+	KEY_INS      = 0x00200000U + 0x2D,
+	KEY_DEL      = 0x00200000U + 0x2E,
+
+	KEY_LWIN    = 0x00200000U + 0x5B,
+	KEY_RWIN    = 0x00200000U + 0x5C,
+	KEY_APPS    = 0x00200000U + 0x5D,
+	KEY_STANDBY = 0x00200000U + 0x5F,
+
+	KEY_NUMPAD0 = 0x00200000U + 0x60,
+	KEY_NUMPAD1 = 0x00200000U + 0x61,
+	KEY_NUMPAD2 = 0x00200000U + 0x62,
+	KEY_NUMPAD3 = 0x00200000U + 0x63,
+	KEY_NUMPAD4 = 0x00200000U + 0x64,
+	KEY_NUMPAD5 = 0x00200000U + 0x65,
+	KEY_CLEAR   = KEY_NUMPAD5,
+	KEY_NUMPAD6 = 0x00200000U + 0x66,
+	KEY_NUMPAD7 = 0x00200000U + 0x67,
+	KEY_NUMPAD8 = 0x00200000U + 0x68,
+	KEY_NUMPAD9 = 0x00200000U + 0x69,
+
+	KEY_MULTIPLY = 0x00200000U + 0x6A,
+	KEY_ADD      = 0x00200000U + 0x6B,
+	KEY_SUBTRACT = 0x00200000U + 0x6D,
+	KEY_DECIMAL  = 0x00200000U + 0x6E,
+	KEY_DIVIDE   = 0x00200000U + 0x6F,
+
+	KEY_F1  = 0x00200000U + 0x70,
+	KEY_F2  = 0x00200000U + 0x71,
+	KEY_F3  = 0x00200000U + 0x72,
+	KEY_F4  = 0x00200000U + 0x73,
+	KEY_F5  = 0x00200000U + 0x74,
+	KEY_F6  = 0x00200000U + 0x75,
+	KEY_F7  = 0x00200000U + 0x76,
+	KEY_F8  = 0x00200000U + 0x77,
+	KEY_F9  = 0x00200000U + 0x78,
+	KEY_F10 = 0x00200000U + 0x79,
+	KEY_F11 = 0x00200000U + 0x7A,
+	KEY_F12 = 0x00200000U + 0x7B,
+
+	KEY_F13 = 0x00200000U + 0x7C,
+	KEY_F14 = 0x00200000U + 0x7D,
+	KEY_F15 = 0x00200000U + 0x7E,
+	KEY_F16 = 0x00200000U + 0x7F,
+	KEY_F17 = 0x00200000U + 0x80,
+	KEY_F18 = 0x00200000U + 0x81,
+	KEY_F19 = 0x00200000U + 0x82,
+	KEY_F20 = 0x00200000U + 0x83,
+	KEY_F21 = 0x00200000U + 0x84,
+	KEY_F22 = 0x00200000U + 0x85,
+	KEY_F23 = 0x00200000U + 0x86,
+	KEY_F24 = 0x00200000U + 0x87,
+
+	KEY_NUMLOCK    = 0x00200000U + 0x90,
+	KEY_SCROLLLOCK = 0x00200000U + 0x91,
+
+	KEY_BROWSER_BACK        = 0x00200000U + 0xA6,
+	KEY_BROWSER_FORWARD     = 0x00200000U + 0xA7,
+	KEY_BROWSER_REFRESH     = 0x00200000U + 0xA8,
+	KEY_BROWSER_STOP        = 0x00200000U + 0xA9,
+	KEY_BROWSER_SEARCH      = 0x00200000U + 0xAA,
+	KEY_BROWSER_FAVORITES   = 0x00200000U + 0xAB,
+	KEY_BROWSER_HOME        = 0x00200000U + 0xAC,
+	KEY_VOLUME_MUTE         = 0x00200000U + 0xAD,
+	KEY_VOLUME_DOWN         = 0x00200000U + 0xAE,
+	KEY_VOLUME_UP           = 0x00200000U + 0xAF,
+	KEY_MEDIA_NEXT_TRACK    = 0x00200000U + 0xB0,
+	KEY_MEDIA_PREV_TRACK    = 0x00200000U + 0xB1,
+	KEY_MEDIA_STOP          = 0x00200000U + 0xB2,
+	KEY_MEDIA_PLAY_PAUSE    = 0x00200000U + 0xB3,
+	KEY_LAUNCH_MAIL         = 0x00200000U + 0xB4,
+	KEY_LAUNCH_MEDIA_SELECT = 0x00200000U + 0xB5,
+	KEY_LAUNCH_APP1         = 0x00200000U + 0xB6,
+	KEY_LAUNCH_APP2         = 0x00200000U + 0xB7,
+
+	KEY_CTRLALTSHIFTPRESS   = (0x00200000U + 0x00080000U) + 1,
+	KEY_CTRLALTSHIFTRELEASE = (0x00200000U + 0x00080000U) + 2,
+
+	KEY_MSWHEEL_UP   = (0x00200000U + 0x00080000U) + 3,
+	KEY_MSWHEEL_DOWN = (0x00200000U + 0x00080000U) + 4,
+
+	KEY_RCTRLALTSHIFTPRESS   = (0x00200000U + 0x00080000U) + 7,
+	KEY_RCTRLALTSHIFTRELEASE = (0x00200000U + 0x00080000U) + 8,
+
+	KEY_NUMDEL   = (0x00200000U + 0x00080000U) + 9,
+	KEY_NUMENTER = (0x00200000U + 0x00080000U) + 0xB,
+
+	KEY_MSWHEEL_LEFT  = (0x00200000U + 0x00080000U) + 0xC,
+	KEY_MSWHEEL_RIGHT = (0x00200000U + 0x00080000U) + 0xD,
+
+	KEY_MSLCLICK = (0x00200000U + 0x00080000U) + 0xF,
+	KEY_MSRCLICK = (0x00200000U + 0x00080000U) + 0x10,
+
+	KEY_MSM1CLICK = (0x00200000U + 0x00080000U) + 0x11,
+	KEY_MSM2CLICK = (0x00200000U + 0x00080000U) + 0x12,
+	KEY_MSM3CLICK = (0x00200000U + 0x00080000U) + 0x13,
+//#line 216 "../far2l/far2l/far2sdk/farkeys.h"
+	KEY_VK_0xFF_BEGIN = 0x00200000U + 0x00000100,
+//#line 234 "../far2l/far2l/far2sdk/farkeys.h"
+	KEY_VK_0xFF_END = 0x00200000U + 0x000001FF,
+
+	KEY_END_FKEY = 0x00200000U + 0x00080000U,
+
+	KEY_NONE = (0x00200000U + 2 * 0x00080000U) + 1,
+	KEY_IDLE = (0x00200000U + 2 * 0x00080000U) + 2,
+
+	KEY_DRAGCOPY = (0x00200000U + 2 * 0x00080000U) + 3,
+	KEY_DRAGMOVE = (0x00200000U + 2 * 0x00080000U) + 4,
 
 
-	KEY_END_SKEY             =0x0003FFFF,
-	KEY_LAST_BASE            =KEY_END_SKEY,
+	KEY_KILLFOCUS             = (0x00200000U + 2 * 0x00080000U) + 6,
+	KEY_GOTFOCUS              = (0x00200000U + 2 * 0x00080000U) + 7,
+	KEY_CONSOLE_BUFFER_RESIZE = (0x00200000U + 2 * 0x00080000U) + 8,
+
+
+	KEY_OP_BASE      = (0x00200000U + 2 * 0x00080000U) + 0x100,
+	KEY_OP_XLAT      = KEY_OP_BASE + 0,
+	KEY_OP_PLAINTEXT = KEY_OP_BASE + 2,
+	KEY_OP_SELWORD   = KEY_OP_BASE + 3,
+	KEY_OP_ENDBASE   = (0x00200000U + 2 * 0x00080000U) + 0x1FF,
+
+
+	KEY_END_SKEY  = (0x00200000U + 2 * 0x00080000U) + (0x00080000U - 1),
+	KEY_LAST_BASE = KEY_END_SKEY,
+
+
+
+	KEY_MACRO_BASE    = (0x00200000U + 3 * 0x00080000U),
+	KEY_MACRO_OP_BASE = (0x00200000U + 3 * 0x00080000U) + 0x0000,
+	KEY_MACRO_C_BASE  = (0x00200000U + 3 * 0x00080000U) + 0x0400,
+	KEY_MACRO_V_BASE  = (0x00200000U + 3 * 0x00080000U) + 0x0800,
+	KEY_MACRO_F_BASE  = (0x00200000U + 3 * 0x00080000U) + 0x0C00,
+
+	KEY_MACRO_U_BASE = (0x00200000U + 3 * 0x00080000U) + 0x8000,
+
+	KEY_MACRO_ENDBASE = KEY_MACRO_BASE + (0x00080000U - 1),
+
+
+
+
+
+	KEY_INVALID = -1
 
 };
 
+
+
+
 enum AddDefKeyboard
+
 {
-	KEY_CTRLSHIFT            =KEY_CTRL|KEY_SHIFT,
-	KEY_ALTSHIFT             =KEY_ALT|KEY_SHIFT,
-	KEY_CTRLALT              =KEY_CTRL|KEY_ALT,
+	KEY_CTRLSHIFT = KEY_CTRL | KEY_SHIFT,
+	KEY_ALTSHIFT  = KEY_ALT | KEY_SHIFT,
+	KEY_CTRLALT   = KEY_CTRL | KEY_ALT,
 
-	KEY_CTRL0                =KEY_CTRL+48,
-	KEY_CTRL1                =KEY_CTRL+49,
-	KEY_CTRL2                =KEY_CTRL+50,
-	KEY_CTRL3                =KEY_CTRL+51,
-	KEY_CTRL4                =KEY_CTRL+52,
-	KEY_CTRL5                =KEY_CTRL+53,
-	KEY_CTRL6                =KEY_CTRL+54,
-	KEY_CTRL7                =KEY_CTRL+55,
-	KEY_CTRL8                =KEY_CTRL+56,
-	KEY_CTRL9                =KEY_CTRL+57,
+	KEY_CTRL0 = KEY_CTRL + 48,
+	KEY_CTRL1 = KEY_CTRL + 49,
+	KEY_CTRL2 = KEY_CTRL + 50,
+	KEY_CTRL3 = KEY_CTRL + 51,
+	KEY_CTRL4 = KEY_CTRL + 52,
+	KEY_CTRL5 = KEY_CTRL + 53,
+	KEY_CTRL6 = KEY_CTRL + 54,
+	KEY_CTRL7 = KEY_CTRL + 55,
+	KEY_CTRL8 = KEY_CTRL + 56,
+	KEY_CTRL9 = KEY_CTRL + 57,
 
-	KEY_RCTRL0               =KEY_RCTRL+48,
-	KEY_RCTRL1               =KEY_RCTRL+49,
-	KEY_RCTRL2               =KEY_RCTRL+50,
-	KEY_RCTRL3               =KEY_RCTRL+51,
-	KEY_RCTRL4               =KEY_RCTRL+52,
-	KEY_RCTRL5               =KEY_RCTRL+53,
-	KEY_RCTRL6               =KEY_RCTRL+54,
-	KEY_RCTRL7               =KEY_RCTRL+55,
-	KEY_RCTRL8               =KEY_RCTRL+56,
-	KEY_RCTRL9               =KEY_RCTRL+57,
+	KEY_RCTRL0 = KEY_RCTRL + 48,
+	KEY_RCTRL1 = KEY_RCTRL + 49,
+	KEY_RCTRL2 = KEY_RCTRL + 50,
+	KEY_RCTRL3 = KEY_RCTRL + 51,
+	KEY_RCTRL4 = KEY_RCTRL + 52,
+	KEY_RCTRL5 = KEY_RCTRL + 53,
+	KEY_RCTRL6 = KEY_RCTRL + 54,
+	KEY_RCTRL7 = KEY_RCTRL + 55,
+	KEY_RCTRL8 = KEY_RCTRL + 56,
+	KEY_RCTRL9 = KEY_RCTRL + 57,
 
-	KEY_CTRLA                =KEY_CTRL+65,
-	KEY_CTRLB                =KEY_CTRL+66,
-	KEY_CTRLC                =KEY_CTRL+67,
-	KEY_CTRLD                =KEY_CTRL+68,
-	KEY_CTRLE                =KEY_CTRL+69,
-	KEY_CTRLF                =KEY_CTRL+70,
-	KEY_CTRLG                =KEY_CTRL+71,
-	KEY_CTRLH                =KEY_CTRL+72,
-	KEY_CTRLI                =KEY_CTRL+73,
-	KEY_CTRLJ                =KEY_CTRL+74,
-	KEY_CTRLK                =KEY_CTRL+75,
-	KEY_CTRLL                =KEY_CTRL+76,
-	KEY_CTRLM                =KEY_CTRL+77,
-	KEY_CTRLN                =KEY_CTRL+78,
-	KEY_CTRLO                =KEY_CTRL+79,
-	KEY_CTRLP                =KEY_CTRL+80,
-	KEY_CTRLQ                =KEY_CTRL+81,
-	KEY_CTRLR                =KEY_CTRL+82,
-	KEY_CTRLS                =KEY_CTRL+83,
-	KEY_CTRLT                =KEY_CTRL+84,
-	KEY_CTRLU                =KEY_CTRL+85,
-	KEY_CTRLV                =KEY_CTRL+86,
-	KEY_CTRLW                =KEY_CTRL+87,
-	KEY_CTRLX                =KEY_CTRL+88,
-	KEY_CTRLY                =KEY_CTRL+89,
-	KEY_CTRLZ                =KEY_CTRL+90,
+	KEY_CTRLA = KEY_CTRL + 65,
+	KEY_CTRLB = KEY_CTRL + 66,
+	KEY_CTRLC = KEY_CTRL + 67,
+	KEY_CTRLD = KEY_CTRL + 68,
+	KEY_CTRLE = KEY_CTRL + 69,
+	KEY_CTRLF = KEY_CTRL + 70,
+	KEY_CTRLG = KEY_CTRL + 71,
+	KEY_CTRLH = KEY_CTRL + 72,
+	KEY_CTRLI = KEY_CTRL + 73,
+	KEY_CTRLJ = KEY_CTRL + 74,
+	KEY_CTRLK = KEY_CTRL + 75,
+	KEY_CTRLL = KEY_CTRL + 76,
+	KEY_CTRLM = KEY_CTRL + 77,
+	KEY_CTRLN = KEY_CTRL + 78,
+	KEY_CTRLO = KEY_CTRL + 79,
+	KEY_CTRLP = KEY_CTRL + 80,
+	KEY_CTRLQ = KEY_CTRL + 81,
+	KEY_CTRLR = KEY_CTRL + 82,
+	KEY_CTRLS = KEY_CTRL + 83,
+	KEY_CTRLT = KEY_CTRL + 84,
+	KEY_CTRLU = KEY_CTRL + 85,
+	KEY_CTRLV = KEY_CTRL + 86,
+	KEY_CTRLW = KEY_CTRL + 87,
+	KEY_CTRLX = KEY_CTRL + 88,
+	KEY_CTRLY = KEY_CTRL + 89,
+	KEY_CTRLZ = KEY_CTRL + 90,
 
-	KEY_CTRLBRACKET          =KEY_CTRL|KEY_BRACKET,
-	KEY_CTRLBACKBRACKET      =KEY_CTRL|KEY_BACKBRACKET,
-	KEY_CTRLCOMMA            =KEY_CTRL|KEY_COMMA,
-	KEY_CTRLQUOTE            =KEY_CTRL|KEY_QUOTE,
-	KEY_CTRLDOT              =KEY_CTRL|KEY_DOT,
+	KEY_CTRLBRACKET     = KEY_CTRL | KEY_BRACKET,
+	KEY_CTRLBACKBRACKET = KEY_CTRL | KEY_BACKBRACKET,
+	KEY_CTRLCOMMA       = KEY_CTRL | KEY_COMMA,
+	KEY_CTRLQUOTE       = KEY_CTRL | KEY_QUOTE,
+	KEY_CTRLDOT         = KEY_CTRL | KEY_DOT,
 
-	KEY_ALT0                 =KEY_ALT+48,
-	KEY_ALT1                 =KEY_ALT+49,
-	KEY_ALT2                 =KEY_ALT+50,
-	KEY_ALT3                 =KEY_ALT+51,
-	KEY_ALT4                 =KEY_ALT+52,
-	KEY_ALT5                 =KEY_ALT+53,
-	KEY_ALT6                 =KEY_ALT+54,
-	KEY_ALT7                 =KEY_ALT+55,
-	KEY_ALT8                 =KEY_ALT+56,
-	KEY_ALT9                 =KEY_ALT+57,
+	KEY_ALT0 = KEY_ALT + 48,
+	KEY_ALT1 = KEY_ALT + 49,
+	KEY_ALT2 = KEY_ALT + 50,
+	KEY_ALT3 = KEY_ALT + 51,
+	KEY_ALT4 = KEY_ALT + 52,
+	KEY_ALT5 = KEY_ALT + 53,
+	KEY_ALT6 = KEY_ALT + 54,
+	KEY_ALT7 = KEY_ALT + 55,
+	KEY_ALT8 = KEY_ALT + 56,
+	KEY_ALT9 = KEY_ALT + 57,
 
-	KEY_ALTADD               =KEY_ALT|KEY_ADD,
-	KEY_ALTDOT               =KEY_ALT|KEY_DOT,
-	KEY_ALTCOMMA             =KEY_ALT|KEY_COMMA,
-	KEY_ALTMULTIPLY          =KEY_ALT|KEY_MULTIPLY,
+	KEY_ALTADD      = KEY_ALT | KEY_ADD,
+	KEY_ALTDOT      = KEY_ALT | KEY_DOT,
+	KEY_ALTCOMMA    = KEY_ALT | KEY_COMMA,
+	KEY_ALTMULTIPLY = KEY_ALT | KEY_MULTIPLY,
 
-	KEY_ALTA                 =KEY_ALT+65,
-	KEY_ALTB                 =KEY_ALT+66,
-	KEY_ALTC                 =KEY_ALT+67,
-	KEY_ALTD                 =KEY_ALT+68,
-	KEY_ALTE                 =KEY_ALT+69,
-	KEY_ALTF                 =KEY_ALT+70,
-	KEY_ALTG                 =KEY_ALT+71,
-	KEY_ALTH                 =KEY_ALT+72,
-	KEY_ALTI                 =KEY_ALT+73,
-	KEY_ALTJ                 =KEY_ALT+74,
-	KEY_ALTK                 =KEY_ALT+75,
-	KEY_ALTL                 =KEY_ALT+76,
-	KEY_ALTM                 =KEY_ALT+77,
-	KEY_ALTN                 =KEY_ALT+78,
-	KEY_ALTO                 =KEY_ALT+79,
-	KEY_ALTP                 =KEY_ALT+80,
-	KEY_ALTQ                 =KEY_ALT+81,
-	KEY_ALTR                 =KEY_ALT+82,
-	KEY_ALTS                 =KEY_ALT+83,
-	KEY_ALTT                 =KEY_ALT+84,
-	KEY_ALTU                 =KEY_ALT+85,
-	KEY_ALTV                 =KEY_ALT+86,
-	KEY_ALTW                 =KEY_ALT+87,
-	KEY_ALTX                 =KEY_ALT+88,
-	KEY_ALTY                 =KEY_ALT+89,
-	KEY_ALTZ                 =KEY_ALT+90,
+	KEY_ALTA = KEY_ALT + 65,
+	KEY_ALTB = KEY_ALT + 66,
+	KEY_ALTC = KEY_ALT + 67,
+	KEY_ALTD = KEY_ALT + 68,
+	KEY_ALTE = KEY_ALT + 69,
+	KEY_ALTF = KEY_ALT + 70,
+	KEY_ALTG = KEY_ALT + 71,
+	KEY_ALTH = KEY_ALT + 72,
+	KEY_ALTI = KEY_ALT + 73,
+	KEY_ALTJ = KEY_ALT + 74,
+	KEY_ALTK = KEY_ALT + 75,
+	KEY_ALTL = KEY_ALT + 76,
+	KEY_ALTM = KEY_ALT + 77,
+	KEY_ALTN = KEY_ALT + 78,
+	KEY_ALTO = KEY_ALT + 79,
+	KEY_ALTP = KEY_ALT + 80,
+	KEY_ALTQ = KEY_ALT + 81,
+	KEY_ALTR = KEY_ALT + 82,
+	KEY_ALTS = KEY_ALT + 83,
+	KEY_ALTT = KEY_ALT + 84,
+	KEY_ALTU = KEY_ALT + 85,
+	KEY_ALTV = KEY_ALT + 86,
+	KEY_ALTW = KEY_ALT + 87,
+	KEY_ALTX = KEY_ALT + 88,
+	KEY_ALTY = KEY_ALT + 89,
+	KEY_ALTZ = KEY_ALT + 90,
 
-	KEY_CTRLSHIFTADD         =KEY_CTRL|KEY_SHIFT|KEY_ADD,
-	KEY_CTRLSHIFTSUBTRACT    =KEY_CTRL|KEY_SHIFT|KEY_SUBTRACT,
-	KEY_CTRLSHIFTDOT         =KEY_CTRL|KEY_SHIFT|KEY_DOT,
-	KEY_CTRLSHIFTSLASH       =KEY_CTRL|KEY_SHIFT|KEY_SLASH,
+	KEY_CTRLSHIFTADD      = KEY_CTRL | KEY_SHIFT | KEY_ADD,
+	KEY_CTRLSHIFTSUBTRACT = KEY_CTRL | KEY_SHIFT | KEY_SUBTRACT,
+	KEY_CTRLSHIFTDOT      = KEY_CTRL | KEY_SHIFT | KEY_DOT,
+	KEY_CTRLSHIFTSLASH    = KEY_CTRL | KEY_SHIFT | KEY_SLASH,
 
-	KEY_CTRLSHIFT0           =(KEY_CTRL|KEY_SHIFT)+48,
-	KEY_CTRLSHIFT1           =(KEY_CTRL|KEY_SHIFT)+49,
-	KEY_CTRLSHIFT2           =(KEY_CTRL|KEY_SHIFT)+50,
-	KEY_CTRLSHIFT3           =(KEY_CTRL|KEY_SHIFT)+51,
-	KEY_CTRLSHIFT4           =(KEY_CTRL|KEY_SHIFT)+52,
-	KEY_CTRLSHIFT5           =(KEY_CTRL|KEY_SHIFT)+53,
-	KEY_CTRLSHIFT6           =(KEY_CTRL|KEY_SHIFT)+54,
-	KEY_CTRLSHIFT7           =(KEY_CTRL|KEY_SHIFT)+55,
-	KEY_CTRLSHIFT8           =(KEY_CTRL|KEY_SHIFT)+56,
-	KEY_CTRLSHIFT9           =(KEY_CTRL|KEY_SHIFT)+57,
+	KEY_CTRLSHIFT0 = (KEY_CTRL | KEY_SHIFT) + 48,
+	KEY_CTRLSHIFT1 = (KEY_CTRL | KEY_SHIFT) + 49,
+	KEY_CTRLSHIFT2 = (KEY_CTRL | KEY_SHIFT) + 50,
+	KEY_CTRLSHIFT3 = (KEY_CTRL | KEY_SHIFT) + 51,
+	KEY_CTRLSHIFT4 = (KEY_CTRL | KEY_SHIFT) + 52,
+	KEY_CTRLSHIFT5 = (KEY_CTRL | KEY_SHIFT) + 53,
+	KEY_CTRLSHIFT6 = (KEY_CTRL | KEY_SHIFT) + 54,
+	KEY_CTRLSHIFT7 = (KEY_CTRL | KEY_SHIFT) + 55,
+	KEY_CTRLSHIFT8 = (KEY_CTRL | KEY_SHIFT) + 56,
+	KEY_CTRLSHIFT9 = (KEY_CTRL | KEY_SHIFT) + 57,
 
-	KEY_RCTRLSHIFT0          =KEY_RCTRL+KEY_SHIFT+48,
-	KEY_RCTRLSHIFT1          =KEY_RCTRL+KEY_SHIFT+49,
-	KEY_RCTRLSHIFT2          =KEY_RCTRL+KEY_SHIFT+50,
-	KEY_RCTRLSHIFT3          =KEY_RCTRL+KEY_SHIFT+51,
-	KEY_RCTRLSHIFT4          =KEY_RCTRL+KEY_SHIFT+52,
-	KEY_RCTRLSHIFT5          =KEY_RCTRL+KEY_SHIFT+53,
-	KEY_RCTRLSHIFT6          =KEY_RCTRL+KEY_SHIFT+54,
-	KEY_RCTRLSHIFT7          =KEY_RCTRL+KEY_SHIFT+55,
-	KEY_RCTRLSHIFT8          =KEY_RCTRL+KEY_SHIFT+56,
-	KEY_RCTRLSHIFT9          =KEY_RCTRL+KEY_SHIFT+57,
+	KEY_RCTRLSHIFT0 = KEY_RCTRL + KEY_SHIFT + 48,
+	KEY_RCTRLSHIFT1 = KEY_RCTRL + KEY_SHIFT + 49,
+	KEY_RCTRLSHIFT2 = KEY_RCTRL + KEY_SHIFT + 50,
+	KEY_RCTRLSHIFT3 = KEY_RCTRL + KEY_SHIFT + 51,
+	KEY_RCTRLSHIFT4 = KEY_RCTRL + KEY_SHIFT + 52,
+	KEY_RCTRLSHIFT5 = KEY_RCTRL + KEY_SHIFT + 53,
+	KEY_RCTRLSHIFT6 = KEY_RCTRL + KEY_SHIFT + 54,
+	KEY_RCTRLSHIFT7 = KEY_RCTRL + KEY_SHIFT + 55,
+	KEY_RCTRLSHIFT8 = KEY_RCTRL + KEY_SHIFT + 56,
+	KEY_RCTRLSHIFT9 = KEY_RCTRL + KEY_SHIFT + 57,
 
-	KEY_CTRLSHIFTA           =(KEY_CTRL|KEY_SHIFT)+65,
-	KEY_CTRLSHIFTB           =(KEY_CTRL|KEY_SHIFT)+66,
-	KEY_CTRLSHIFTC           =(KEY_CTRL|KEY_SHIFT)+67,
-	KEY_CTRLSHIFTD           =(KEY_CTRL|KEY_SHIFT)+68,
-	KEY_CTRLSHIFTE           =(KEY_CTRL|KEY_SHIFT)+69,
-	KEY_CTRLSHIFTF           =(KEY_CTRL|KEY_SHIFT)+70,
-	KEY_CTRLSHIFTG           =(KEY_CTRL|KEY_SHIFT)+71,
-	KEY_CTRLSHIFTH           =(KEY_CTRL|KEY_SHIFT)+72,
-	KEY_CTRLSHIFTI           =(KEY_CTRL|KEY_SHIFT)+73,
-	KEY_CTRLSHIFTJ           =(KEY_CTRL|KEY_SHIFT)+74,
-	KEY_CTRLSHIFTK           =(KEY_CTRL|KEY_SHIFT)+75,
-	KEY_CTRLSHIFTL           =(KEY_CTRL|KEY_SHIFT)+76,
-	KEY_CTRLSHIFTM           =(KEY_CTRL|KEY_SHIFT)+77,
-	KEY_CTRLSHIFTN           =(KEY_CTRL|KEY_SHIFT)+78,
-	KEY_CTRLSHIFTO           =(KEY_CTRL|KEY_SHIFT)+79,
-	KEY_CTRLSHIFTP           =(KEY_CTRL|KEY_SHIFT)+80,
-	KEY_CTRLSHIFTQ           =(KEY_CTRL|KEY_SHIFT)+81,
-	KEY_CTRLSHIFTR           =(KEY_CTRL|KEY_SHIFT)+82,
-	KEY_CTRLSHIFTS           =(KEY_CTRL|KEY_SHIFT)+83,
-	KEY_CTRLSHIFTT           =(KEY_CTRL|KEY_SHIFT)+84,
-	KEY_CTRLSHIFTU           =(KEY_CTRL|KEY_SHIFT)+85,
-	KEY_CTRLSHIFTV           =(KEY_CTRL|KEY_SHIFT)+86,
-	KEY_CTRLSHIFTW           =(KEY_CTRL|KEY_SHIFT)+87,
-	KEY_CTRLSHIFTX           =(KEY_CTRL|KEY_SHIFT)+88,
-	KEY_CTRLSHIFTY           =(KEY_CTRL|KEY_SHIFT)+89,
-	KEY_CTRLSHIFTZ           =(KEY_CTRL|KEY_SHIFT)+90,
+	KEY_CTRLSHIFTA = (KEY_CTRL | KEY_SHIFT) + 65,
+	KEY_CTRLSHIFTB = (KEY_CTRL | KEY_SHIFT) + 66,
+	KEY_CTRLSHIFTC = (KEY_CTRL | KEY_SHIFT) + 67,
+	KEY_CTRLSHIFTD = (KEY_CTRL | KEY_SHIFT) + 68,
+	KEY_CTRLSHIFTE = (KEY_CTRL | KEY_SHIFT) + 69,
+	KEY_CTRLSHIFTF = (KEY_CTRL | KEY_SHIFT) + 70,
+	KEY_CTRLSHIFTG = (KEY_CTRL | KEY_SHIFT) + 71,
+	KEY_CTRLSHIFTH = (KEY_CTRL | KEY_SHIFT) + 72,
+	KEY_CTRLSHIFTI = (KEY_CTRL | KEY_SHIFT) + 73,
+	KEY_CTRLSHIFTJ = (KEY_CTRL | KEY_SHIFT) + 74,
+	KEY_CTRLSHIFTK = (KEY_CTRL | KEY_SHIFT) + 75,
+	KEY_CTRLSHIFTL = (KEY_CTRL | KEY_SHIFT) + 76,
+	KEY_CTRLSHIFTM = (KEY_CTRL | KEY_SHIFT) + 77,
+	KEY_CTRLSHIFTN = (KEY_CTRL | KEY_SHIFT) + 78,
+	KEY_CTRLSHIFTO = (KEY_CTRL | KEY_SHIFT) + 79,
+	KEY_CTRLSHIFTP = (KEY_CTRL | KEY_SHIFT) + 80,
+	KEY_CTRLSHIFTQ = (KEY_CTRL | KEY_SHIFT) + 81,
+	KEY_CTRLSHIFTR = (KEY_CTRL | KEY_SHIFT) + 82,
+	KEY_CTRLSHIFTS = (KEY_CTRL | KEY_SHIFT) + 83,
+	KEY_CTRLSHIFTT = (KEY_CTRL | KEY_SHIFT) + 84,
+	KEY_CTRLSHIFTU = (KEY_CTRL | KEY_SHIFT) + 85,
+	KEY_CTRLSHIFTV = (KEY_CTRL | KEY_SHIFT) + 86,
+	KEY_CTRLSHIFTW = (KEY_CTRL | KEY_SHIFT) + 87,
+	KEY_CTRLSHIFTX = (KEY_CTRL | KEY_SHIFT) + 88,
+	KEY_CTRLSHIFTY = (KEY_CTRL | KEY_SHIFT) + 89,
+	KEY_CTRLSHIFTZ = (KEY_CTRL | KEY_SHIFT) + 90,
 
-	KEY_CTRLSHIFTBRACKET     =KEY_CTRL|KEY_SHIFT|KEY_BRACKET,
-	KEY_CTRLSHIFTBACKSLASH   =KEY_CTRL|KEY_SHIFT|KEY_BACKSLASH,
-	KEY_CTRLSHIFTBACKBRACKET =KEY_CTRL|KEY_SHIFT|KEY_BACKBRACKET,
+	KEY_CTRLSHIFTBRACKET     = KEY_CTRL | KEY_SHIFT | KEY_BRACKET,
+	KEY_CTRLSHIFTBACKSLASH   = KEY_CTRL | KEY_SHIFT | KEY_BACKSLASH,
+	KEY_CTRLSHIFTBACKBRACKET = KEY_CTRL | KEY_SHIFT | KEY_BACKBRACKET,
 
-	KEY_ALTSHIFT0            =(KEY_ALT|KEY_SHIFT)+48,
-	KEY_ALTSHIFT1            =(KEY_ALT|KEY_SHIFT)+49,
-	KEY_ALTSHIFT2            =(KEY_ALT|KEY_SHIFT)+50,
-	KEY_ALTSHIFT3            =(KEY_ALT|KEY_SHIFT)+51,
-	KEY_ALTSHIFT4            =(KEY_ALT|KEY_SHIFT)+52,
-	KEY_ALTSHIFT5            =(KEY_ALT|KEY_SHIFT)+53,
-	KEY_ALTSHIFT6            =(KEY_ALT|KEY_SHIFT)+54,
-	KEY_ALTSHIFT7            =(KEY_ALT|KEY_SHIFT)+55,
-	KEY_ALTSHIFT8            =(KEY_ALT|KEY_SHIFT)+56,
-	KEY_ALTSHIFT9            =(KEY_ALT|KEY_SHIFT)+57,
+	KEY_ALTSHIFT0 = (KEY_ALT | KEY_SHIFT) + 48,
+	KEY_ALTSHIFT1 = (KEY_ALT | KEY_SHIFT) + 49,
+	KEY_ALTSHIFT2 = (KEY_ALT | KEY_SHIFT) + 50,
+	KEY_ALTSHIFT3 = (KEY_ALT | KEY_SHIFT) + 51,
+	KEY_ALTSHIFT4 = (KEY_ALT | KEY_SHIFT) + 52,
+	KEY_ALTSHIFT5 = (KEY_ALT | KEY_SHIFT) + 53,
+	KEY_ALTSHIFT6 = (KEY_ALT | KEY_SHIFT) + 54,
+	KEY_ALTSHIFT7 = (KEY_ALT | KEY_SHIFT) + 55,
+	KEY_ALTSHIFT8 = (KEY_ALT | KEY_SHIFT) + 56,
+	KEY_ALTSHIFT9 = (KEY_ALT | KEY_SHIFT) + 57,
 
-	KEY_ALTSHIFTA            =(KEY_ALT|KEY_SHIFT)+65,
-	KEY_ALTSHIFTB            =(KEY_ALT|KEY_SHIFT)+66,
-	KEY_ALTSHIFTC            =(KEY_ALT|KEY_SHIFT)+67,
-	KEY_ALTSHIFTD            =(KEY_ALT|KEY_SHIFT)+68,
-	KEY_ALTSHIFTE            =(KEY_ALT|KEY_SHIFT)+69,
-	KEY_ALTSHIFTF            =(KEY_ALT|KEY_SHIFT)+70,
-	KEY_ALTSHIFTG            =(KEY_ALT|KEY_SHIFT)+71,
-	KEY_ALTSHIFTH            =(KEY_ALT|KEY_SHIFT)+72,
-	KEY_ALTSHIFTI            =(KEY_ALT|KEY_SHIFT)+73,
-	KEY_ALTSHIFTJ            =(KEY_ALT|KEY_SHIFT)+74,
-	KEY_ALTSHIFTK            =(KEY_ALT|KEY_SHIFT)+75,
-	KEY_ALTSHIFTL            =(KEY_ALT|KEY_SHIFT)+76,
-	KEY_ALTSHIFTM            =(KEY_ALT|KEY_SHIFT)+77,
-	KEY_ALTSHIFTN            =(KEY_ALT|KEY_SHIFT)+78,
-	KEY_ALTSHIFTO            =(KEY_ALT|KEY_SHIFT)+79,
-	KEY_ALTSHIFTP            =(KEY_ALT|KEY_SHIFT)+80,
-	KEY_ALTSHIFTQ            =(KEY_ALT|KEY_SHIFT)+81,
-	KEY_ALTSHIFTR            =(KEY_ALT|KEY_SHIFT)+82,
-	KEY_ALTSHIFTS            =(KEY_ALT|KEY_SHIFT)+83,
-	KEY_ALTSHIFTT            =(KEY_ALT|KEY_SHIFT)+84,
-	KEY_ALTSHIFTU            =(KEY_ALT|KEY_SHIFT)+85,
-	KEY_ALTSHIFTV            =(KEY_ALT|KEY_SHIFT)+86,
-	KEY_ALTSHIFTW            =(KEY_ALT|KEY_SHIFT)+87,
-	KEY_ALTSHIFTX            =(KEY_ALT|KEY_SHIFT)+88,
-	KEY_ALTSHIFTY            =(KEY_ALT|KEY_SHIFT)+89,
-	KEY_ALTSHIFTZ            =(KEY_ALT|KEY_SHIFT)+90,
+	KEY_ALTSHIFTA = (KEY_ALT | KEY_SHIFT) + 65,
+	KEY_ALTSHIFTB = (KEY_ALT | KEY_SHIFT) + 66,
+	KEY_ALTSHIFTC = (KEY_ALT | KEY_SHIFT) + 67,
+	KEY_ALTSHIFTD = (KEY_ALT | KEY_SHIFT) + 68,
+	KEY_ALTSHIFTE = (KEY_ALT | KEY_SHIFT) + 69,
+	KEY_ALTSHIFTF = (KEY_ALT | KEY_SHIFT) + 70,
+	KEY_ALTSHIFTG = (KEY_ALT | KEY_SHIFT) + 71,
+	KEY_ALTSHIFTH = (KEY_ALT | KEY_SHIFT) + 72,
+	KEY_ALTSHIFTI = (KEY_ALT | KEY_SHIFT) + 73,
+	KEY_ALTSHIFTJ = (KEY_ALT | KEY_SHIFT) + 74,
+	KEY_ALTSHIFTK = (KEY_ALT | KEY_SHIFT) + 75,
+	KEY_ALTSHIFTL = (KEY_ALT | KEY_SHIFT) + 76,
+	KEY_ALTSHIFTM = (KEY_ALT | KEY_SHIFT) + 77,
+	KEY_ALTSHIFTN = (KEY_ALT | KEY_SHIFT) + 78,
+	KEY_ALTSHIFTO = (KEY_ALT | KEY_SHIFT) + 79,
+	KEY_ALTSHIFTP = (KEY_ALT | KEY_SHIFT) + 80,
+	KEY_ALTSHIFTQ = (KEY_ALT | KEY_SHIFT) + 81,
+	KEY_ALTSHIFTR = (KEY_ALT | KEY_SHIFT) + 82,
+	KEY_ALTSHIFTS = (KEY_ALT | KEY_SHIFT) + 83,
+	KEY_ALTSHIFTT = (KEY_ALT | KEY_SHIFT) + 84,
+	KEY_ALTSHIFTU = (KEY_ALT | KEY_SHIFT) + 85,
+	KEY_ALTSHIFTV = (KEY_ALT | KEY_SHIFT) + 86,
+	KEY_ALTSHIFTW = (KEY_ALT | KEY_SHIFT) + 87,
+	KEY_ALTSHIFTX = (KEY_ALT | KEY_SHIFT) + 88,
+	KEY_ALTSHIFTY = (KEY_ALT | KEY_SHIFT) + 89,
+	KEY_ALTSHIFTZ = (KEY_ALT | KEY_SHIFT) + 90,
 
-	KEY_ALTSHIFTBRACKET      =KEY_ALT|KEY_SHIFT|KEY_BRACKET,
-	KEY_ALTSHIFTBACKBRACKET  =KEY_ALT|KEY_SHIFT|KEY_BACKBRACKET,
+	KEY_ALTSHIFTBRACKET     = KEY_ALT | KEY_SHIFT | KEY_BRACKET,
+	KEY_ALTSHIFTBACKBRACKET = KEY_ALT | KEY_SHIFT | KEY_BACKBRACKET,
 
-	KEY_CTRLALT0             =(KEY_CTRL|KEY_ALT)+48,
-	KEY_CTRLALT1             =(KEY_CTRL|KEY_ALT)+49,
-	KEY_CTRLALT2             =(KEY_CTRL|KEY_ALT)+50,
-	KEY_CTRLALT3             =(KEY_CTRL|KEY_ALT)+51,
-	KEY_CTRLALT4             =(KEY_CTRL|KEY_ALT)+52,
-	KEY_CTRLALT5             =(KEY_CTRL|KEY_ALT)+53,
-	KEY_CTRLALT6             =(KEY_CTRL|KEY_ALT)+54,
-	KEY_CTRLALT7             =(KEY_CTRL|KEY_ALT)+55,
-	KEY_CTRLALT8             =(KEY_CTRL|KEY_ALT)+56,
-	KEY_CTRLALT9             =(KEY_CTRL|KEY_ALT)+57,
+	KEY_CTRLALT0 = (KEY_CTRL | KEY_ALT) + 48,
+	KEY_CTRLALT1 = (KEY_CTRL | KEY_ALT) + 49,
+	KEY_CTRLALT2 = (KEY_CTRL | KEY_ALT) + 50,
+	KEY_CTRLALT3 = (KEY_CTRL | KEY_ALT) + 51,
+	KEY_CTRLALT4 = (KEY_CTRL | KEY_ALT) + 52,
+	KEY_CTRLALT5 = (KEY_CTRL | KEY_ALT) + 53,
+	KEY_CTRLALT6 = (KEY_CTRL | KEY_ALT) + 54,
+	KEY_CTRLALT7 = (KEY_CTRL | KEY_ALT) + 55,
+	KEY_CTRLALT8 = (KEY_CTRL | KEY_ALT) + 56,
+	KEY_CTRLALT9 = (KEY_CTRL | KEY_ALT) + 57,
 
-	KEY_CTRLALTA             =(KEY_CTRL|KEY_ALT)+65,
-	KEY_CTRLALTB             =(KEY_CTRL|KEY_ALT)+66,
-	KEY_CTRLALTC             =(KEY_CTRL|KEY_ALT)+67,
-	KEY_CTRLALTD             =(KEY_CTRL|KEY_ALT)+68,
-	KEY_CTRLALTE             =(KEY_CTRL|KEY_ALT)+69,
-	KEY_CTRLALTF             =(KEY_CTRL|KEY_ALT)+70,
-	KEY_CTRLALTG             =(KEY_CTRL|KEY_ALT)+71,
-	KEY_CTRLALTH             =(KEY_CTRL|KEY_ALT)+72,
-	KEY_CTRLALTI             =(KEY_CTRL|KEY_ALT)+73,
-	KEY_CTRLALTJ             =(KEY_CTRL|KEY_ALT)+74,
-	KEY_CTRLALTK             =(KEY_CTRL|KEY_ALT)+75,
-	KEY_CTRLALTL             =(KEY_CTRL|KEY_ALT)+76,
-	KEY_CTRLALTM             =(KEY_CTRL|KEY_ALT)+77,
-	KEY_CTRLALTN             =(KEY_CTRL|KEY_ALT)+78,
-	KEY_CTRLALTO             =(KEY_CTRL|KEY_ALT)+79,
-	KEY_CTRLALTP             =(KEY_CTRL|KEY_ALT)+80,
-	KEY_CTRLALTQ             =(KEY_CTRL|KEY_ALT)+81,
-	KEY_CTRLALTR             =(KEY_CTRL|KEY_ALT)+82,
-	KEY_CTRLALTS             =(KEY_CTRL|KEY_ALT)+83,
-	KEY_CTRLALTT             =(KEY_CTRL|KEY_ALT)+84,
-	KEY_CTRLALTU             =(KEY_CTRL|KEY_ALT)+85,
-	KEY_CTRLALTV             =(KEY_CTRL|KEY_ALT)+86,
-	KEY_CTRLALTW             =(KEY_CTRL|KEY_ALT)+87,
-	KEY_CTRLALTX             =(KEY_CTRL|KEY_ALT)+88,
-	KEY_CTRLALTY             =(KEY_CTRL|KEY_ALT)+89,
-	KEY_CTRLALTZ             =(KEY_CTRL|KEY_ALT)+90,
+	KEY_CTRLALTA = (KEY_CTRL | KEY_ALT) + 65,
+	KEY_CTRLALTB = (KEY_CTRL | KEY_ALT) + 66,
+	KEY_CTRLALTC = (KEY_CTRL | KEY_ALT) + 67,
+	KEY_CTRLALTD = (KEY_CTRL | KEY_ALT) + 68,
+	KEY_CTRLALTE = (KEY_CTRL | KEY_ALT) + 69,
+	KEY_CTRLALTF = (KEY_CTRL | KEY_ALT) + 70,
+	KEY_CTRLALTG = (KEY_CTRL | KEY_ALT) + 71,
+	KEY_CTRLALTH = (KEY_CTRL | KEY_ALT) + 72,
+	KEY_CTRLALTI = (KEY_CTRL | KEY_ALT) + 73,
+	KEY_CTRLALTJ = (KEY_CTRL | KEY_ALT) + 74,
+	KEY_CTRLALTK = (KEY_CTRL | KEY_ALT) + 75,
+	KEY_CTRLALTL = (KEY_CTRL | KEY_ALT) + 76,
+	KEY_CTRLALTM = (KEY_CTRL | KEY_ALT) + 77,
+	KEY_CTRLALTN = (KEY_CTRL | KEY_ALT) + 78,
+	KEY_CTRLALTO = (KEY_CTRL | KEY_ALT) + 79,
+	KEY_CTRLALTP = (KEY_CTRL | KEY_ALT) + 80,
+	KEY_CTRLALTQ = (KEY_CTRL | KEY_ALT) + 81,
+	KEY_CTRLALTR = (KEY_CTRL | KEY_ALT) + 82,
+	KEY_CTRLALTS = (KEY_CTRL | KEY_ALT) + 83,
+	KEY_CTRLALTT = (KEY_CTRL | KEY_ALT) + 84,
+	KEY_CTRLALTU = (KEY_CTRL | KEY_ALT) + 85,
+	KEY_CTRLALTV = (KEY_CTRL | KEY_ALT) + 86,
+	KEY_CTRLALTW = (KEY_CTRL | KEY_ALT) + 87,
+	KEY_CTRLALTX = (KEY_CTRL | KEY_ALT) + 88,
+	KEY_CTRLALTY = (KEY_CTRL | KEY_ALT) + 89,
+	KEY_CTRLALTZ = (KEY_CTRL | KEY_ALT) + 90,
 
-	KEY_CTRLALTBRACKET       =KEY_CTRL|KEY_ALT|KEY_BRACKET,
-	KEY_CTRLALTBACKBRACKET   =KEY_CTRL|KEY_ALT|KEY_BACKBRACKET,
+	KEY_CTRLALTBRACKET     = KEY_CTRL | KEY_ALT | KEY_BRACKET,
+	KEY_CTRLALTBACKBRACKET = KEY_CTRL | KEY_ALT | KEY_BACKBRACKET,
 
-	KEY_CTRLF1               =KEY_CTRL|KEY_F1,
-	KEY_CTRLF2               =KEY_CTRL|KEY_F2,
-	KEY_CTRLF3               =KEY_CTRL|KEY_F3,
-	KEY_CTRLF4               =KEY_CTRL|KEY_F4,
-	KEY_CTRLF5               =KEY_CTRL|KEY_F5,
-	KEY_CTRLF6               =KEY_CTRL|KEY_F6,
-	KEY_CTRLF7               =KEY_CTRL|KEY_F7,
-	KEY_CTRLF8               =KEY_CTRL|KEY_F8,
-	KEY_CTRLF9               =KEY_CTRL|KEY_F9,
-	KEY_CTRLF10              =KEY_CTRL|KEY_F10,
-	KEY_CTRLF11              =KEY_CTRL|KEY_F11,
-	KEY_CTRLF12              =KEY_CTRL|KEY_F12,
+	KEY_CTRLF1  = KEY_CTRL | KEY_F1,
+	KEY_CTRLF2  = KEY_CTRL | KEY_F2,
+	KEY_CTRLF3  = KEY_CTRL | KEY_F3,
+	KEY_CTRLF4  = KEY_CTRL | KEY_F4,
+	KEY_CTRLF5  = KEY_CTRL | KEY_F5,
+	KEY_CTRLF6  = KEY_CTRL | KEY_F6,
+	KEY_CTRLF7  = KEY_CTRL | KEY_F7,
+	KEY_CTRLF8  = KEY_CTRL | KEY_F8,
+	KEY_CTRLF9  = KEY_CTRL | KEY_F9,
+	KEY_CTRLF10 = KEY_CTRL | KEY_F10,
+	KEY_CTRLF11 = KEY_CTRL | KEY_F11,
+	KEY_CTRLF12 = KEY_CTRL | KEY_F12,
 
-	KEY_SHIFTF1              =KEY_SHIFT|KEY_F1,
-	KEY_SHIFTF2              =KEY_SHIFT|KEY_F2,
-	KEY_SHIFTF3              =KEY_SHIFT|KEY_F3,
-	KEY_SHIFTF4              =KEY_SHIFT|KEY_F4,
-	KEY_SHIFTF5              =KEY_SHIFT|KEY_F5,
-	KEY_SHIFTF6              =KEY_SHIFT|KEY_F6,
-	KEY_SHIFTF7              =KEY_SHIFT|KEY_F7,
-	KEY_SHIFTF8              =KEY_SHIFT|KEY_F8,
-	KEY_SHIFTF9              =KEY_SHIFT|KEY_F9,
-	KEY_SHIFTF10             =KEY_SHIFT|KEY_F10,
-	KEY_SHIFTF11             =KEY_SHIFT|KEY_F11,
-	KEY_SHIFTF12             =KEY_SHIFT|KEY_F12,
+	KEY_SHIFTF1  = KEY_SHIFT | KEY_F1,
+	KEY_SHIFTF2  = KEY_SHIFT | KEY_F2,
+	KEY_SHIFTF3  = KEY_SHIFT | KEY_F3,
+	KEY_SHIFTF4  = KEY_SHIFT | KEY_F4,
+	KEY_SHIFTF5  = KEY_SHIFT | KEY_F5,
+	KEY_SHIFTF6  = KEY_SHIFT | KEY_F6,
+	KEY_SHIFTF7  = KEY_SHIFT | KEY_F7,
+	KEY_SHIFTF8  = KEY_SHIFT | KEY_F8,
+	KEY_SHIFTF9  = KEY_SHIFT | KEY_F9,
+	KEY_SHIFTF10 = KEY_SHIFT | KEY_F10,
+	KEY_SHIFTF11 = KEY_SHIFT | KEY_F11,
+	KEY_SHIFTF12 = KEY_SHIFT | KEY_F12,
 
-	KEY_ALTF1                =KEY_ALT|KEY_F1,
-	KEY_ALTF2                =KEY_ALT|KEY_F2,
-	KEY_ALTF3                =KEY_ALT|KEY_F3,
-	KEY_ALTF4                =KEY_ALT|KEY_F4,
-	KEY_ALTF5                =KEY_ALT|KEY_F5,
-	KEY_ALTF6                =KEY_ALT|KEY_F6,
-	KEY_ALTF7                =KEY_ALT|KEY_F7,
-	KEY_ALTF8                =KEY_ALT|KEY_F8,
-	KEY_ALTF9                =KEY_ALT|KEY_F9,
-	KEY_ALTF10               =KEY_ALT|KEY_F10,
-	KEY_ALTF11               =KEY_ALT|KEY_F11,
-	KEY_ALTF12               =KEY_ALT|KEY_F12,
+	KEY_ALTF1  = KEY_ALT | KEY_F1,
+	KEY_ALTF2  = KEY_ALT | KEY_F2,
+	KEY_ALTF3  = KEY_ALT | KEY_F3,
+	KEY_ALTF4  = KEY_ALT | KEY_F4,
+	KEY_ALTF5  = KEY_ALT | KEY_F5,
+	KEY_ALTF6  = KEY_ALT | KEY_F6,
+	KEY_ALTF7  = KEY_ALT | KEY_F7,
+	KEY_ALTF8  = KEY_ALT | KEY_F8,
+	KEY_ALTF9  = KEY_ALT | KEY_F9,
+	KEY_ALTF10 = KEY_ALT | KEY_F10,
+	KEY_ALTF11 = KEY_ALT | KEY_F11,
+	KEY_ALTF12 = KEY_ALT | KEY_F12,
 
-	KEY_CTRLSHIFTF1          =KEY_CTRL|KEY_SHIFT|KEY_F1,
-	KEY_CTRLSHIFTF2          =KEY_CTRL|KEY_SHIFT|KEY_F2,
-	KEY_CTRLSHIFTF3          =KEY_CTRL|KEY_SHIFT|KEY_F3,
-	KEY_CTRLSHIFTF4          =KEY_CTRL|KEY_SHIFT|KEY_F4,
-	KEY_CTRLSHIFTF5          =KEY_CTRL|KEY_SHIFT|KEY_F5,
-	KEY_CTRLSHIFTF6          =KEY_CTRL|KEY_SHIFT|KEY_F6,
-	KEY_CTRLSHIFTF7          =KEY_CTRL|KEY_SHIFT|KEY_F7,
-	KEY_CTRLSHIFTF8          =KEY_CTRL|KEY_SHIFT|KEY_F8,
-	KEY_CTRLSHIFTF9          =KEY_CTRL|KEY_SHIFT|KEY_F9,
-	KEY_CTRLSHIFTF10         =KEY_CTRL|KEY_SHIFT|KEY_F10,
-	KEY_CTRLSHIFTF11         =KEY_CTRL|KEY_SHIFT|KEY_F11,
-	KEY_CTRLSHIFTF12         =KEY_CTRL|KEY_SHIFT|KEY_F12,
+	KEY_CTRLSHIFTF1  = KEY_CTRL | KEY_SHIFT | KEY_F1,
+	KEY_CTRLSHIFTF2  = KEY_CTRL | KEY_SHIFT | KEY_F2,
+	KEY_CTRLSHIFTF3  = KEY_CTRL | KEY_SHIFT | KEY_F3,
+	KEY_CTRLSHIFTF4  = KEY_CTRL | KEY_SHIFT | KEY_F4,
+	KEY_CTRLSHIFTF5  = KEY_CTRL | KEY_SHIFT | KEY_F5,
+	KEY_CTRLSHIFTF6  = KEY_CTRL | KEY_SHIFT | KEY_F6,
+	KEY_CTRLSHIFTF7  = KEY_CTRL | KEY_SHIFT | KEY_F7,
+	KEY_CTRLSHIFTF8  = KEY_CTRL | KEY_SHIFT | KEY_F8,
+	KEY_CTRLSHIFTF9  = KEY_CTRL | KEY_SHIFT | KEY_F9,
+	KEY_CTRLSHIFTF10 = KEY_CTRL | KEY_SHIFT | KEY_F10,
+	KEY_CTRLSHIFTF11 = KEY_CTRL | KEY_SHIFT | KEY_F11,
+	KEY_CTRLSHIFTF12 = KEY_CTRL | KEY_SHIFT | KEY_F12,
 
-	KEY_ALTSHIFTF1           =KEY_ALT|KEY_SHIFT|KEY_F1,
-	KEY_ALTSHIFTF2           =KEY_ALT|KEY_SHIFT|KEY_F2,
-	KEY_ALTSHIFTF3           =KEY_ALT|KEY_SHIFT|KEY_F3,
-	KEY_ALTSHIFTF4           =KEY_ALT|KEY_SHIFT|KEY_F4,
-	KEY_ALTSHIFTF5           =KEY_ALT|KEY_SHIFT|KEY_F5,
-	KEY_ALTSHIFTF6           =KEY_ALT|KEY_SHIFT|KEY_F6,
-	KEY_ALTSHIFTF7           =KEY_ALT|KEY_SHIFT|KEY_F7,
-	KEY_ALTSHIFTF8           =KEY_ALT|KEY_SHIFT|KEY_F8,
-	KEY_ALTSHIFTF9           =KEY_ALT|KEY_SHIFT|KEY_F9,
-	KEY_ALTSHIFTF10          =KEY_ALT|KEY_SHIFT|KEY_F10,
-	KEY_ALTSHIFTF11          =KEY_ALT|KEY_SHIFT|KEY_F11,
-	KEY_ALTSHIFTF12          =KEY_ALT|KEY_SHIFT|KEY_F12,
+	KEY_ALTSHIFTF1  = KEY_ALT | KEY_SHIFT | KEY_F1,
+	KEY_ALTSHIFTF2  = KEY_ALT | KEY_SHIFT | KEY_F2,
+	KEY_ALTSHIFTF3  = KEY_ALT | KEY_SHIFT | KEY_F3,
+	KEY_ALTSHIFTF4  = KEY_ALT | KEY_SHIFT | KEY_F4,
+	KEY_ALTSHIFTF5  = KEY_ALT | KEY_SHIFT | KEY_F5,
+	KEY_ALTSHIFTF6  = KEY_ALT | KEY_SHIFT | KEY_F6,
+	KEY_ALTSHIFTF7  = KEY_ALT | KEY_SHIFT | KEY_F7,
+	KEY_ALTSHIFTF8  = KEY_ALT | KEY_SHIFT | KEY_F8,
+	KEY_ALTSHIFTF9  = KEY_ALT | KEY_SHIFT | KEY_F9,
+	KEY_ALTSHIFTF10 = KEY_ALT | KEY_SHIFT | KEY_F10,
+	KEY_ALTSHIFTF11 = KEY_ALT | KEY_SHIFT | KEY_F11,
+	KEY_ALTSHIFTF12 = KEY_ALT | KEY_SHIFT | KEY_F12,
 
-	KEY_CTRLALTF1            =KEY_CTRL|KEY_ALT|KEY_F1,
-	KEY_CTRLALTF2            =KEY_CTRL|KEY_ALT|KEY_F2,
-	KEY_CTRLALTF3            =KEY_CTRL|KEY_ALT|KEY_F3,
-	KEY_CTRLALTF4            =KEY_CTRL|KEY_ALT|KEY_F4,
-	KEY_CTRLALTF5            =KEY_CTRL|KEY_ALT|KEY_F5,
-	KEY_CTRLALTF6            =KEY_CTRL|KEY_ALT|KEY_F6,
-	KEY_CTRLALTF7            =KEY_CTRL|KEY_ALT|KEY_F7,
-	KEY_CTRLALTF8            =KEY_CTRL|KEY_ALT|KEY_F8,
-	KEY_CTRLALTF9            =KEY_CTRL|KEY_ALT|KEY_F9,
-	KEY_CTRLALTF10           =KEY_CTRL|KEY_ALT|KEY_F10,
-	KEY_CTRLALTF11           =KEY_CTRL|KEY_ALT|KEY_F11,
-	KEY_CTRLALTF12           =KEY_CTRL|KEY_ALT|KEY_F12,
+	KEY_CTRLALTF1  = KEY_CTRL | KEY_ALT | KEY_F1,
+	KEY_CTRLALTF2  = KEY_CTRL | KEY_ALT | KEY_F2,
+	KEY_CTRLALTF3  = KEY_CTRL | KEY_ALT | KEY_F3,
+	KEY_CTRLALTF4  = KEY_CTRL | KEY_ALT | KEY_F4,
+	KEY_CTRLALTF5  = KEY_CTRL | KEY_ALT | KEY_F5,
+	KEY_CTRLALTF6  = KEY_CTRL | KEY_ALT | KEY_F6,
+	KEY_CTRLALTF7  = KEY_CTRL | KEY_ALT | KEY_F7,
+	KEY_CTRLALTF8  = KEY_CTRL | KEY_ALT | KEY_F8,
+	KEY_CTRLALTF9  = KEY_CTRL | KEY_ALT | KEY_F9,
+	KEY_CTRLALTF10 = KEY_CTRL | KEY_ALT | KEY_F10,
+	KEY_CTRLALTF11 = KEY_CTRL | KEY_ALT | KEY_F11,
+	KEY_CTRLALTF12 = KEY_CTRL | KEY_ALT | KEY_F12,
 
-	KEY_CTRLHOME             =KEY_CTRL|KEY_HOME,
-	KEY_CTRLUP               =KEY_CTRL|KEY_UP,
-	KEY_CTRLPGUP             =KEY_CTRL|KEY_PGUP,
-	KEY_CTRLLEFT             =KEY_CTRL|KEY_LEFT,
-	KEY_CTRLRIGHT            =KEY_CTRL|KEY_RIGHT,
-	KEY_CTRLEND              =KEY_CTRL|KEY_END,
-	KEY_CTRLDOWN             =KEY_CTRL|KEY_DOWN,
-	KEY_CTRLPGDN             =KEY_CTRL|KEY_PGDN,
-	KEY_CTRLINS              =KEY_CTRL|KEY_INS,
-	KEY_CTRLDEL              =KEY_CTRL|KEY_DEL,
-	KEY_CTRLNUMDEL           =KEY_CTRL|KEY_NUMDEL,
-	KEY_CTRLDECIMAL          =KEY_CTRL|KEY_DECIMAL,
+	KEY_CTRLHOME    = KEY_CTRL | KEY_HOME,
+	KEY_CTRLUP      = KEY_CTRL | KEY_UP,
+	KEY_CTRLPGUP    = KEY_CTRL | KEY_PGUP,
+	KEY_CTRLLEFT    = KEY_CTRL | KEY_LEFT,
+	KEY_CTRLRIGHT   = KEY_CTRL | KEY_RIGHT,
+	KEY_CTRLEND     = KEY_CTRL | KEY_END,
+	KEY_CTRLDOWN    = KEY_CTRL | KEY_DOWN,
+	KEY_CTRLPGDN    = KEY_CTRL | KEY_PGDN,
+	KEY_CTRLINS     = KEY_CTRL | KEY_INS,
+	KEY_CTRLDEL     = KEY_CTRL | KEY_DEL,
+	KEY_CTRLNUMDEL  = KEY_CTRL | KEY_NUMDEL,
+	KEY_CTRLDECIMAL = KEY_CTRL | KEY_DECIMAL,
 
-	KEY_SHIFTHOME            =KEY_SHIFT|KEY_HOME,
-	KEY_SHIFTUP              =KEY_SHIFT|KEY_UP,
-	KEY_SHIFTPGUP            =KEY_SHIFT|KEY_PGUP,
-	KEY_SHIFTLEFT            =KEY_SHIFT|KEY_LEFT,
-	KEY_SHIFTRIGHT           =KEY_SHIFT|KEY_RIGHT,
-	KEY_SHIFTEND             =KEY_SHIFT|KEY_END,
-	KEY_SHIFTDOWN            =KEY_SHIFT|KEY_DOWN,
-	KEY_SHIFTPGDN            =KEY_SHIFT|KEY_PGDN,
-	KEY_SHIFTINS             =KEY_SHIFT|KEY_INS,
-	KEY_SHIFTDEL             =KEY_SHIFT|KEY_DEL,
-	KEY_SHIFTNUMDEL          =KEY_SHIFT|KEY_NUMDEL,
-	KEY_SHIFTDECIMAL         =KEY_SHIFT|KEY_DECIMAL,
+	KEY_SHIFTHOME    = KEY_SHIFT | KEY_HOME,
+	KEY_SHIFTUP      = KEY_SHIFT | KEY_UP,
+	KEY_SHIFTPGUP    = KEY_SHIFT | KEY_PGUP,
+	KEY_SHIFTLEFT    = KEY_SHIFT | KEY_LEFT,
+	KEY_SHIFTRIGHT   = KEY_SHIFT | KEY_RIGHT,
+	KEY_SHIFTEND     = KEY_SHIFT | KEY_END,
+	KEY_SHIFTDOWN    = KEY_SHIFT | KEY_DOWN,
+	KEY_SHIFTPGDN    = KEY_SHIFT | KEY_PGDN,
+	KEY_SHIFTINS     = KEY_SHIFT | KEY_INS,
+	KEY_SHIFTDEL     = KEY_SHIFT | KEY_DEL,
+	KEY_SHIFTNUMDEL  = KEY_SHIFT | KEY_NUMDEL,
+	KEY_SHIFTDECIMAL = KEY_SHIFT | KEY_DECIMAL,
 
-	KEY_ALTHOME              =KEY_ALT|KEY_HOME,
-	KEY_ALTUP                =KEY_ALT|KEY_UP,
-	KEY_ALTPGUP              =KEY_ALT|KEY_PGUP,
-	KEY_ALTLEFT              =KEY_ALT|KEY_LEFT,
-	KEY_ALTRIGHT             =KEY_ALT|KEY_RIGHT,
-	KEY_ALTEND               =KEY_ALT|KEY_END,
-	KEY_ALTDOWN              =KEY_ALT|KEY_DOWN,
-	KEY_ALTPGDN              =KEY_ALT|KEY_PGDN,
-	KEY_ALTINS               =KEY_ALT|KEY_INS,
-	KEY_ALTDEL               =KEY_ALT|KEY_DEL,
-	KEY_ALTNUMDEL            =KEY_ALT|KEY_NUMDEL,
-	KEY_ALTDECIMAL           =KEY_ALT|KEY_DECIMAL,
+	KEY_ALTHOME    = KEY_ALT | KEY_HOME,
+	KEY_ALTUP      = KEY_ALT | KEY_UP,
+	KEY_ALTPGUP    = KEY_ALT | KEY_PGUP,
+	KEY_ALTLEFT    = KEY_ALT | KEY_LEFT,
+	KEY_ALTRIGHT   = KEY_ALT | KEY_RIGHT,
+	KEY_ALTEND     = KEY_ALT | KEY_END,
+	KEY_ALTDOWN    = KEY_ALT | KEY_DOWN,
+	KEY_ALTPGDN    = KEY_ALT | KEY_PGDN,
+	KEY_ALTINS     = KEY_ALT | KEY_INS,
+	KEY_ALTDEL     = KEY_ALT | KEY_DEL,
+	KEY_ALTNUMDEL  = KEY_ALT | KEY_NUMDEL,
+	KEY_ALTDECIMAL = KEY_ALT | KEY_DECIMAL,
 
-	KEY_CTRLSHIFTHOME        =KEY_CTRL|KEY_SHIFT|KEY_HOME,
-	KEY_CTRLSHIFTUP          =KEY_CTRL|KEY_SHIFT|KEY_UP,
-	KEY_CTRLSHIFTPGUP        =KEY_CTRL|KEY_SHIFT|KEY_PGUP,
-	KEY_CTRLSHIFTLEFT        =KEY_CTRL|KEY_SHIFT|KEY_LEFT,
-	KEY_CTRLSHIFTRIGHT       =KEY_CTRL|KEY_SHIFT|KEY_RIGHT,
-	KEY_CTRLSHIFTEND         =KEY_CTRL|KEY_SHIFT|KEY_END,
-	KEY_CTRLSHIFTDOWN        =KEY_CTRL|KEY_SHIFT|KEY_DOWN,
-	KEY_CTRLSHIFTPGDN        =KEY_CTRL|KEY_SHIFT|KEY_PGDN,
-	KEY_CTRLSHIFTINS         =KEY_CTRL|KEY_SHIFT|KEY_INS,
-	KEY_CTRLSHIFTDEL         =KEY_CTRL|KEY_SHIFT|KEY_DEL,
-	KEY_CTRLSHIFTNUMDEL      =KEY_CTRL|KEY_SHIFT|KEY_NUMDEL,
-	KEY_CTRLSHIFTDECIMAL     =KEY_CTRL|KEY_SHIFT|KEY_DECIMAL,
+	KEY_CTRLSHIFTHOME    = KEY_CTRL | KEY_SHIFT | KEY_HOME,
+	KEY_CTRLSHIFTUP      = KEY_CTRL | KEY_SHIFT | KEY_UP,
+	KEY_CTRLSHIFTPGUP    = KEY_CTRL | KEY_SHIFT | KEY_PGUP,
+	KEY_CTRLSHIFTLEFT    = KEY_CTRL | KEY_SHIFT | KEY_LEFT,
+	KEY_CTRLSHIFTRIGHT   = KEY_CTRL | KEY_SHIFT | KEY_RIGHT,
+	KEY_CTRLSHIFTEND     = KEY_CTRL | KEY_SHIFT | KEY_END,
+	KEY_CTRLSHIFTDOWN    = KEY_CTRL | KEY_SHIFT | KEY_DOWN,
+	KEY_CTRLSHIFTPGDN    = KEY_CTRL | KEY_SHIFT | KEY_PGDN,
+	KEY_CTRLSHIFTINS     = KEY_CTRL | KEY_SHIFT | KEY_INS,
+	KEY_CTRLSHIFTDEL     = KEY_CTRL | KEY_SHIFT | KEY_DEL,
+	KEY_CTRLSHIFTNUMDEL  = KEY_CTRL | KEY_SHIFT | KEY_NUMDEL,
+	KEY_CTRLSHIFTDECIMAL = KEY_CTRL | KEY_SHIFT | KEY_DECIMAL,
 
-	KEY_ALTSHIFTHOME         =KEY_ALT|KEY_SHIFT|KEY_HOME,
-	KEY_ALTSHIFTUP           =KEY_ALT|KEY_SHIFT|KEY_UP,
-	KEY_ALTSHIFTPGUP         =KEY_ALT|KEY_SHIFT|KEY_PGUP,
-	KEY_ALTSHIFTLEFT         =KEY_ALT|KEY_SHIFT|KEY_LEFT,
-	KEY_ALTSHIFTRIGHT        =KEY_ALT|KEY_SHIFT|KEY_RIGHT,
-	KEY_ALTSHIFTEND          =KEY_ALT|KEY_SHIFT|KEY_END,
-	KEY_ALTSHIFTDOWN         =KEY_ALT|KEY_SHIFT|KEY_DOWN,
-	KEY_ALTSHIFTPGDN         =KEY_ALT|KEY_SHIFT|KEY_PGDN,
-	KEY_ALTSHIFTINS          =KEY_ALT|KEY_SHIFT|KEY_INS,
-	KEY_ALTSHIFTDEL          =KEY_ALT|KEY_SHIFT|KEY_DEL,
-	KEY_ALTSHIFTNUMDEL       =KEY_ALT|KEY_SHIFT|KEY_NUMDEL,
-	KEY_ALTSHIFTDECIMAL      =KEY_ALT|KEY_SHIFT|KEY_DECIMAL,
+	KEY_ALTSHIFTHOME    = KEY_ALT | KEY_SHIFT | KEY_HOME,
+	KEY_ALTSHIFTUP      = KEY_ALT | KEY_SHIFT | KEY_UP,
+	KEY_ALTSHIFTPGUP    = KEY_ALT | KEY_SHIFT | KEY_PGUP,
+	KEY_ALTSHIFTLEFT    = KEY_ALT | KEY_SHIFT | KEY_LEFT,
+	KEY_ALTSHIFTRIGHT   = KEY_ALT | KEY_SHIFT | KEY_RIGHT,
+	KEY_ALTSHIFTEND     = KEY_ALT | KEY_SHIFT | KEY_END,
+	KEY_ALTSHIFTDOWN    = KEY_ALT | KEY_SHIFT | KEY_DOWN,
+	KEY_ALTSHIFTPGDN    = KEY_ALT | KEY_SHIFT | KEY_PGDN,
+	KEY_ALTSHIFTINS     = KEY_ALT | KEY_SHIFT | KEY_INS,
+	KEY_ALTSHIFTDEL     = KEY_ALT | KEY_SHIFT | KEY_DEL,
+	KEY_ALTSHIFTNUMDEL  = KEY_ALT | KEY_SHIFT | KEY_NUMDEL,
+	KEY_ALTSHIFTDECIMAL = KEY_ALT | KEY_SHIFT | KEY_DECIMAL,
 
-	KEY_CTRLALTHOME          =KEY_CTRL|KEY_ALT|KEY_HOME,
-	KEY_CTRLALTUP            =KEY_CTRL|KEY_ALT|KEY_UP,
-	KEY_CTRLALTPGUP          =KEY_CTRL|KEY_ALT|KEY_PGUP,
-	KEY_CTRLALTLEFT          =KEY_CTRL|KEY_ALT|KEY_LEFT,
-	KEY_CTRLALTRIGHT         =KEY_CTRL|KEY_ALT|KEY_RIGHT,
-	KEY_CTRLALTEND           =KEY_CTRL|KEY_ALT|KEY_END,
-	KEY_CTRLALTDOWN          =KEY_CTRL|KEY_ALT|KEY_DOWN,
-	KEY_CTRLALTPGDN          =KEY_CTRL|KEY_ALT|KEY_PGDN,
-	KEY_CTRLALTINS           =KEY_CTRL|KEY_ALT|KEY_INS,
+	KEY_CTRLALTHOME  = KEY_CTRL | KEY_ALT | KEY_HOME,
+	KEY_CTRLALTUP    = KEY_CTRL | KEY_ALT | KEY_UP,
+	KEY_CTRLALTPGUP  = KEY_CTRL | KEY_ALT | KEY_PGUP,
+	KEY_CTRLALTLEFT  = KEY_CTRL | KEY_ALT | KEY_LEFT,
+	KEY_CTRLALTRIGHT = KEY_CTRL | KEY_ALT | KEY_RIGHT,
+	KEY_CTRLALTEND   = KEY_CTRL | KEY_ALT | KEY_END,
+	KEY_CTRLALTDOWN  = KEY_CTRL | KEY_ALT | KEY_DOWN,
+	KEY_CTRLALTPGDN  = KEY_CTRL | KEY_ALT | KEY_PGDN,
+	KEY_CTRLALTINS   = KEY_CTRL | KEY_ALT | KEY_INS,
 
-	KEY_CTRLNUMPAD0          =KEY_CTRL|KEY_NUMPAD0,
-	KEY_CTRLNUMPAD1          =KEY_CTRL|KEY_NUMPAD1,
-	KEY_CTRLNUMPAD2          =KEY_CTRL|KEY_NUMPAD2,
-	KEY_CTRLNUMPAD3          =KEY_CTRL|KEY_NUMPAD3,
-	KEY_CTRLNUMPAD4          =KEY_CTRL|KEY_NUMPAD4,
-	KEY_CTRLNUMPAD5          =KEY_CTRL|KEY_NUMPAD5,
-	KEY_CTRLNUMPAD6          =KEY_CTRL|KEY_NUMPAD6,
-	KEY_CTRLNUMPAD7          =KEY_CTRL|KEY_NUMPAD7,
-	KEY_CTRLNUMPAD8          =KEY_CTRL|KEY_NUMPAD8,
-	KEY_CTRLNUMPAD9          =KEY_CTRL|KEY_NUMPAD9,
+	KEY_CTRLNUMPAD0 = KEY_CTRL | KEY_NUMPAD0,
+	KEY_CTRLNUMPAD1 = KEY_CTRL | KEY_NUMPAD1,
+	KEY_CTRLNUMPAD2 = KEY_CTRL | KEY_NUMPAD2,
+	KEY_CTRLNUMPAD3 = KEY_CTRL | KEY_NUMPAD3,
+	KEY_CTRLNUMPAD4 = KEY_CTRL | KEY_NUMPAD4,
+	KEY_CTRLNUMPAD5 = KEY_CTRL | KEY_NUMPAD5,
+	KEY_CTRLNUMPAD6 = KEY_CTRL | KEY_NUMPAD6,
+	KEY_CTRLNUMPAD7 = KEY_CTRL | KEY_NUMPAD7,
+	KEY_CTRLNUMPAD8 = KEY_CTRL | KEY_NUMPAD8,
+	KEY_CTRLNUMPAD9 = KEY_CTRL | KEY_NUMPAD9,
 
-	KEY_SHIFTNUMPAD0         =KEY_SHIFT|KEY_NUMPAD0,
-	KEY_SHIFTNUMPAD1         =KEY_SHIFT|KEY_NUMPAD1,
-	KEY_SHIFTNUMPAD2         =KEY_SHIFT|KEY_NUMPAD2,
-	KEY_SHIFTNUMPAD3         =KEY_SHIFT|KEY_NUMPAD3,
-	KEY_SHIFTNUMPAD4         =KEY_SHIFT|KEY_NUMPAD4,
-	KEY_SHIFTNUMPAD5         =KEY_SHIFT|KEY_NUMPAD5,
-	KEY_SHIFTNUMPAD6         =KEY_SHIFT|KEY_NUMPAD6,
-	KEY_SHIFTNUMPAD7         =KEY_SHIFT|KEY_NUMPAD7,
-	KEY_SHIFTNUMPAD8         =KEY_SHIFT|KEY_NUMPAD8,
-	KEY_SHIFTNUMPAD9         =KEY_SHIFT|KEY_NUMPAD9,
+	KEY_SHIFTNUMPAD0 = KEY_SHIFT | KEY_NUMPAD0,
+	KEY_SHIFTNUMPAD1 = KEY_SHIFT | KEY_NUMPAD1,
+	KEY_SHIFTNUMPAD2 = KEY_SHIFT | KEY_NUMPAD2,
+	KEY_SHIFTNUMPAD3 = KEY_SHIFT | KEY_NUMPAD3,
+	KEY_SHIFTNUMPAD4 = KEY_SHIFT | KEY_NUMPAD4,
+	KEY_SHIFTNUMPAD5 = KEY_SHIFT | KEY_NUMPAD5,
+	KEY_SHIFTNUMPAD6 = KEY_SHIFT | KEY_NUMPAD6,
+	KEY_SHIFTNUMPAD7 = KEY_SHIFT | KEY_NUMPAD7,
+	KEY_SHIFTNUMPAD8 = KEY_SHIFT | KEY_NUMPAD8,
+	KEY_SHIFTNUMPAD9 = KEY_SHIFT | KEY_NUMPAD9,
 
-	KEY_CTRLSHIFTNUMPAD0     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD0,
-	KEY_CTRLSHIFTNUMPAD1     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD1,
-	KEY_CTRLSHIFTNUMPAD2     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD2,
-	KEY_CTRLSHIFTNUMPAD3     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD3,
-	KEY_CTRLSHIFTNUMPAD4     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD4,
-	KEY_CTRLSHIFTNUMPAD5     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD5,
-	KEY_CTRLSHIFTNUMPAD6     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD6,
-	KEY_CTRLSHIFTNUMPAD7     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD7,
-	KEY_CTRLSHIFTNUMPAD8     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD8,
-	KEY_CTRLSHIFTNUMPAD9     =KEY_CTRL|KEY_SHIFT|KEY_NUMPAD9,
+	KEY_CTRLSHIFTNUMPAD0 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD0,
+	KEY_CTRLSHIFTNUMPAD1 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD1,
+	KEY_CTRLSHIFTNUMPAD2 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD2,
+	KEY_CTRLSHIFTNUMPAD3 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD3,
+	KEY_CTRLSHIFTNUMPAD4 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD4,
+	KEY_CTRLSHIFTNUMPAD5 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD5,
+	KEY_CTRLSHIFTNUMPAD6 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD6,
+	KEY_CTRLSHIFTNUMPAD7 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD7,
+	KEY_CTRLSHIFTNUMPAD8 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD8,
+	KEY_CTRLSHIFTNUMPAD9 = KEY_CTRL | KEY_SHIFT | KEY_NUMPAD9,
 
-	KEY_CTRLALTNUMPAD0       =KEY_CTRL|KEY_ALT|KEY_NUMPAD0,
-	KEY_CTRLALTNUMPAD1       =KEY_CTRL|KEY_ALT|KEY_NUMPAD1,
-	KEY_CTRLALTNUMPAD2       =KEY_CTRL|KEY_ALT|KEY_NUMPAD2,
-	KEY_CTRLALTNUMPAD3       =KEY_CTRL|KEY_ALT|KEY_NUMPAD3,
-	KEY_CTRLALTNUMPAD4       =KEY_CTRL|KEY_ALT|KEY_NUMPAD4,
-	KEY_CTRLALTNUMPAD5       =KEY_CTRL|KEY_ALT|KEY_NUMPAD5,
-	KEY_CTRLALTNUMPAD6       =KEY_CTRL|KEY_ALT|KEY_NUMPAD6,
-	KEY_CTRLALTNUMPAD7       =KEY_CTRL|KEY_ALT|KEY_NUMPAD7,
-	KEY_CTRLALTNUMPAD8       =KEY_CTRL|KEY_ALT|KEY_NUMPAD8,
-	KEY_CTRLALTNUMPAD9       =KEY_CTRL|KEY_ALT|KEY_NUMPAD9,
+	KEY_CTRLALTNUMPAD0 = KEY_CTRL | KEY_ALT | KEY_NUMPAD0,
+	KEY_CTRLALTNUMPAD1 = KEY_CTRL | KEY_ALT | KEY_NUMPAD1,
+	KEY_CTRLALTNUMPAD2 = KEY_CTRL | KEY_ALT | KEY_NUMPAD2,
+	KEY_CTRLALTNUMPAD3 = KEY_CTRL | KEY_ALT | KEY_NUMPAD3,
+	KEY_CTRLALTNUMPAD4 = KEY_CTRL | KEY_ALT | KEY_NUMPAD4,
+	KEY_CTRLALTNUMPAD5 = KEY_CTRL | KEY_ALT | KEY_NUMPAD5,
+	KEY_CTRLALTNUMPAD6 = KEY_CTRL | KEY_ALT | KEY_NUMPAD6,
+	KEY_CTRLALTNUMPAD7 = KEY_CTRL | KEY_ALT | KEY_NUMPAD7,
+	KEY_CTRLALTNUMPAD8 = KEY_CTRL | KEY_ALT | KEY_NUMPAD8,
+	KEY_CTRLALTNUMPAD9 = KEY_CTRL | KEY_ALT | KEY_NUMPAD9,
 
-	KEY_ALTSHIFTNUMPAD0      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD0,
-	KEY_ALTSHIFTNUMPAD1      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD1,
-	KEY_ALTSHIFTNUMPAD2      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD2,
-	KEY_ALTSHIFTNUMPAD3      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD3,
-	KEY_ALTSHIFTNUMPAD4      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD4,
-	KEY_ALTSHIFTNUMPAD5      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD5,
-	KEY_ALTSHIFTNUMPAD6      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD6,
-	KEY_ALTSHIFTNUMPAD7      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD7,
-	KEY_ALTSHIFTNUMPAD8      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD8,
-	KEY_ALTSHIFTNUMPAD9      =KEY_ALT|KEY_SHIFT|KEY_NUMPAD9,
+	KEY_ALTSHIFTNUMPAD0 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD0,
+	KEY_ALTSHIFTNUMPAD1 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD1,
+	KEY_ALTSHIFTNUMPAD2 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD2,
+	KEY_ALTSHIFTNUMPAD3 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD3,
+	KEY_ALTSHIFTNUMPAD4 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD4,
+	KEY_ALTSHIFTNUMPAD5 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD5,
+	KEY_ALTSHIFTNUMPAD6 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD6,
+	KEY_ALTSHIFTNUMPAD7 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD7,
+	KEY_ALTSHIFTNUMPAD8 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD8,
+	KEY_ALTSHIFTNUMPAD9 = KEY_ALT | KEY_SHIFT | KEY_NUMPAD9,
 
-	KEY_CTRLSLASH            =KEY_CTRL|KEY_SLASH,
-	KEY_CTRLBACKSLASH        =KEY_CTRL|KEY_BACKSLASH,
-	KEY_CTRLCLEAR            =KEY_CTRL|KEY_CLEAR,
-	KEY_CTRLSHIFTCLEAR       =KEY_CTRL|KEY_SHIFT|KEY_CLEAR,
-	KEY_CTRLALTCLEAR         =KEY_CTRL|KEY_ALT|KEY_CLEAR,
-	KEY_CTRLADD              =KEY_CTRL|KEY_ADD,
-	KEY_SHIFTADD             =KEY_SHIFT|KEY_ADD,
+	KEY_CTRLSLASH      = KEY_CTRL | KEY_SLASH,
+	KEY_CTRLBACKSLASH  = KEY_CTRL | KEY_BACKSLASH,
+	KEY_CTRLCLEAR      = KEY_CTRL | KEY_CLEAR,
+	KEY_CTRLSHIFTCLEAR = KEY_CTRL | KEY_SHIFT | KEY_CLEAR,
+	KEY_CTRLALTCLEAR   = KEY_CTRL | KEY_ALT | KEY_CLEAR,
+	KEY_CTRLADD        = KEY_CTRL | KEY_ADD,
+	KEY_SHIFTADD       = KEY_SHIFT | KEY_ADD,
 
-	KEY_CTRLSUBTRACT         =KEY_CTRL|KEY_SUBTRACT,
-	KEY_ALTSUBTRACT          =KEY_ALT|KEY_SUBTRACT,
-	KEY_SHIFTSUBTRACT        =KEY_SHIFT|KEY_SUBTRACT,
-	KEY_CTRLMULTIPLY         =KEY_CTRL|KEY_MULTIPLY,
+	KEY_CTRLSUBTRACT  = KEY_CTRL | KEY_SUBTRACT,
+	KEY_ALTSUBTRACT   = KEY_ALT | KEY_SUBTRACT,
+	KEY_SHIFTSUBTRACT = KEY_SHIFT | KEY_SUBTRACT,
+	KEY_CTRLMULTIPLY  = KEY_CTRL | KEY_MULTIPLY,
 
-	KEY_CTRLBS               =KEY_CTRL|KEY_BS,
-	KEY_ALTBS                =KEY_ALT|KEY_BS,
-	KEY_CTRLSHIFTBS          =KEY_CTRL|KEY_SHIFT|KEY_BS,
-	KEY_SHIFTBS              =KEY_SHIFT|KEY_BS,
+	KEY_CTRLBS      = KEY_CTRL | KEY_BS,
+	KEY_ALTBS       = KEY_ALT | KEY_BS,
+	KEY_CTRLSHIFTBS = KEY_CTRL | KEY_SHIFT | KEY_BS,
+	KEY_SHIFTBS     = KEY_SHIFT | KEY_BS,
 
-	KEY_CTRLSHIFTTAB         =KEY_CTRL|KEY_SHIFT|KEY_TAB,
-	KEY_CTRLTAB              =KEY_CTRL|KEY_TAB,
-	KEY_SHIFTTAB             =KEY_SHIFT|KEY_TAB,
+	KEY_CTRLSHIFTTAB = KEY_CTRL | KEY_SHIFT | KEY_TAB,
+	KEY_CTRLTAB      = KEY_CTRL | KEY_TAB,
+	KEY_SHIFTTAB     = KEY_SHIFT | KEY_TAB,
 
-	KEY_CTRLENTER            =KEY_CTRL|KEY_ENTER,
-	KEY_SHIFTENTER           =KEY_SHIFT|KEY_ENTER,
-	KEY_ALTSHIFTENTER        =KEY_ALT|KEY_SHIFT|KEY_ENTER,
-	KEY_CTRLALTENTER         =KEY_CTRL|KEY_ALT|KEY_ENTER,
-	KEY_CTRLSHIFTENTER       =KEY_CTRL|KEY_SHIFT|KEY_ENTER,
+	KEY_CTRLENTER      = KEY_CTRL | KEY_ENTER,
+	KEY_SHIFTENTER     = KEY_SHIFT | KEY_ENTER,
+	KEY_ALTSHIFTENTER  = KEY_ALT | KEY_SHIFT | KEY_ENTER,
+	KEY_CTRLALTENTER   = KEY_CTRL | KEY_ALT | KEY_ENTER,
+	KEY_CTRLSHIFTENTER = KEY_CTRL | KEY_SHIFT | KEY_ENTER,
 
-	KEY_CTRLNUMENTER         =KEY_CTRL|KEY_NUMENTER,
-	KEY_SHIFTNUMENTER        =KEY_SHIFT|KEY_NUMENTER,
-	KEY_ALTSHIFTNUMENTER     =KEY_ALT|KEY_SHIFT|KEY_NUMENTER,
-	KEY_CTRLALTNUMENTER      =KEY_CTRL|KEY_ALT|KEY_NUMENTER,
-	KEY_CTRLSHIFTNUMENTER    =KEY_CTRL|KEY_SHIFT|KEY_NUMENTER,
+	KEY_CTRLNUMENTER      = KEY_CTRL | KEY_NUMENTER,
+	KEY_SHIFTNUMENTER     = KEY_SHIFT | KEY_NUMENTER,
+	KEY_ALTSHIFTNUMENTER  = KEY_ALT | KEY_SHIFT | KEY_NUMENTER,
+	KEY_CTRLALTNUMENTER   = KEY_CTRL | KEY_ALT | KEY_NUMENTER,
+	KEY_CTRLSHIFTNUMENTER = KEY_CTRL | KEY_SHIFT | KEY_NUMENTER,
 
-	KEY_CTRLAPPS             =KEY_CTRL|KEY_APPS,
-	KEY_ALTAPPS              =KEY_ALT|KEY_APPS,
-	KEY_SHIFTAPPS            =KEY_SHIFT|KEY_APPS,
-	KEY_CTRLSHIFTAPPS        =KEY_CTRL|KEY_SHIFT|KEY_APPS,
-	KEY_ALTSHIFTAPPS         =KEY_ALT|KEY_SHIFT|KEY_APPS,
-	KEY_CTRLALTAPPS          =KEY_CTRL|KEY_ALT|KEY_APPS,
+	KEY_CTRLAPPS      = KEY_CTRL | KEY_APPS,
+	KEY_ALTAPPS       = KEY_ALT | KEY_APPS,
+	KEY_SHIFTAPPS     = KEY_SHIFT | KEY_APPS,
+	KEY_CTRLSHIFTAPPS = KEY_CTRL | KEY_SHIFT | KEY_APPS,
+	KEY_ALTSHIFTAPPS  = KEY_ALT | KEY_SHIFT | KEY_APPS,
+	KEY_CTRLALTAPPS   = KEY_CTRL | KEY_ALT | KEY_APPS,
 
-	KEY_CTRLSPACE            =KEY_CTRL|KEY_SPACE,
-	KEY_SHIFTSPACE           =KEY_SHIFT|KEY_SPACE,
-	KEY_CTRLSHIFTSPACE       =KEY_CTRL|KEY_SHIFT|KEY_SPACE,
+	KEY_CTRLSPACE      = KEY_CTRL | KEY_SPACE,
+	KEY_SHIFTSPACE     = KEY_SHIFT | KEY_SPACE,
+	KEY_CTRLSHIFTSPACE = KEY_CTRL | KEY_SHIFT | KEY_SPACE,
 
-	KEY_ALT_BASE             =KEY_ALT,
-	KEY_ALTSHIFT_BASE        =KEY_ALTSHIFT,
+	KEY_ALT_BASE      = KEY_ALT,
+	KEY_ALTSHIFT_BASE = KEY_ALTSHIFT
 };

@@ -38,11 +38,13 @@ print('*'*20, 'GetPluginInfo')
 for name in dir(pi):
     print(name, getattr(pi, name))
 
-ppm.OpenPlugin(pm.ffic.OPEN_COMMANDLINE, s2f('load uinfo'))
+rc = ppm.OpenPlugin(pm.ffic.OPEN_COMMANDLINE, s2f('load uinfo'))
+print('ppm.OpenPlugin(pm.ffic.OPEN_COMMANDLINE)=', rc)
 
 ppm.GetPluginInfo(int(pm.ffi.cast('uint64_t', pi)))
 print('*'*20, 'GetPluginInfo')
 for name in dir(pi):
     print(name, getattr(pi, name))
 
-ppm.OpenPlugin(pm.ffic.OPEN_EDITOR, 0)
+rc = ppm.OpenPlugin(pm.ffic.OPEN_EDITOR, 0)
+print('ppm.OpenPlugin(pm.ffic.OPEN_EDITOR)=', rc)

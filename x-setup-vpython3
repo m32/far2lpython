@@ -1,2 +1,2 @@
 #!/bin/bash
-virtualenv -p python3 /devel/bin/python3
+python3 -m venv env /devel/bin/python3
