@@ -2,11 +2,13 @@
 DisableOutput=0x1
 Selection=0x1
 Sequence=
- %i=APanel.CurPos-1;
- $While (%i>=0 && !panelitem(0,%i,8))
-   %i=%i-1;
+ $If ((APanel.FilePanel) && (APanel.Selected))
+     %i = APanel.curPos - 1;
+     $While (%i >= 1)
+         $If (panel.item(0, %i,8))
+             panel.setposidx(0, %i);
+             $Exit
+         $End
+         %i=%i-1;
+     $End
  $End
- $If (%i<0)
-   $Exit
- $End
- panel.setpos(0,panelitem(0,%i,0))
